@@ -1,0 +1,136 @@
+import MDXComponents from '../components/MDXComponents';
+
+export const metadata = {
+  title: 'Pindorama: O Nome Verdadeiro da Nossa Terra',
+  description: 'Explore a origem indígena do nome Pindorama e seu significado profundo para a identidade nacional.',
+  author: 'Dr. João Silva',
+  date: '2024-01-10',
+  category: 'Cultura',
+  readTime: '7 min'
+};
+
+<div className="mb-8">
+  <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+    <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium">
+      {metadata.category}
+    </span>
+    <span>{metadata.author}</span>
+    <span>•</span>
+    <span>{new Date(metadata.date).toLocaleDateString('pt-BR', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+    <span>•</span>
+    <span>{metadata.readTime} de leitura</span>
+  </div>
+</div>
+
+# Pindorama: O Nome Verdadeiro da Nossa Terra
+
+<div className="aspect-[16/9] bg-gradient-to-br from-green-100 to-blue-100 rounded-2xl flex items-center justify-center mb-8">
+  <div className="text-8xl">🌳</div>
+</div>
+
+Antes de ser "Brasil", antes de ser "Terra de Santa Cruz", nossa terra tinha um nome que ecoava pelos rios, florestas e montanhas: **Pindorama**. Este nome, de origem tupi-guarani, carrega em si a essência de uma identidade que precede a colonização e que hoje ressurge como símbolo de resistência e soberania.
+
+## A Etimologia Sagrada
+
+A palavra "Pindorama" deriva do tupi antigo e possui significados profundos que revelam a cosmovisão indígena sobre nossa terra:
+
+- **Pindo**: Palmeira, especificamente a palmeira real
+- **Rama**: Terra, região, lugar
+- **Pindorama**: "Terra das Palmeiras" ou "Região das Palmeiras"
+
+Mas o significado vai além da tradução literal. Para os povos originários, Pindorama representava:
+
+> "A terra abençoada onde as palmeiras tocam o céu e suas raízes abraçam a mãe terra, criando um elo sagrado entre o divino e o terreno."
+
+## O Simbolismo das Palmeiras
+
+As palmeiras não foram escolhidas aleatoriamente como símbolo da nossa terra. Elas representam:
+
+### Características Espirituais:
+- **Conexão vertical**: Ligam a terra ao céu
+- **Resistência**: Dobram mas não quebram com as tempestades
+- **Abundância**: Oferecem frutos, sombra e materiais para construção
+- **Longevidade**: Algumas espécies vivem centenas de anos
+
+### Significado Cultural:
+- **Hospitalidade**: Sombra para viajantes
+- **Sustentabilidade**: Recursos renováveis
+- **Identidade**: Presentes em todo território nacional
+- **Diversidade**: Múltiplas espécies adaptadas a diferentes biomas
+
+## A Supressão do Nome Original
+
+Com a chegada dos colonizadores europeus, o nome Pindorama foi gradualmente substituído por denominações impostas:
+
+1. **1500**: "Terra de Vera Cruz" (Pero Vaz de Caminha)
+2. **1501**: "Terra de Santa Cruz" (oficialização portuguesa)
+3. **1530**: "Brasil" (devido ao pau-brasil)
+
+Esta mudança não foi apenas linguística, mas representou uma **tentativa de apagamento cultural** e espiritual dos povos originários.
+
+## O Ressurgimento de Pindorama
+
+Nas últimas décadas, o nome Pindorama tem ressurgido em diversos contextos:
+
+### Movimentos Sociais:
+- Luta pelos direitos indígenas
+- Movimentos ambientalistas
+- Grupos de resistência cultural
+
+### Arte e Cultura:
+- Literatura contemporânea
+- Música popular brasileira
+- Artes visuais e cinema
+
+### Educação:
+- Currículos escolares alternativos
+- Universidades indígenas
+- Projetos de educação ambiental
+
+## Pindorama Hoje: Mais que um Nome
+
+Resgatar o nome Pindorama significa:
+
+- **Reconhecer** a sabedoria dos povos originários
+- **Valorizar** nossa biodiversidade única
+- **Resistir** à colonização cultural contínua
+- **Construir** uma identidade nacional autêntica
+
+### Princípios de Pindorama:
+
+1. **Sustentabilidade**: Viver em harmonia com a natureza
+2. **Diversidade**: Celebrar a pluralidade cultural
+3. **Ancestralidade**: Honrar as raízes originárias
+4. **Soberania**: Autodeterminação dos povos
+
+## A Geografia Sagrada
+
+Pindorama não era apenas um nome, mas uma **concepção geográfica sagrada** que incluía:
+
+- **Rios como veias**: Sistemas fluviais como circulação vital
+- **Florestas como pulmões**: Biomas como órgãos respiratórios
+- **Montanhas como espinha dorsal**: Cordilheiras como estrutura de sustentação
+- **Oceano como abraço**: Litoral como fronteira acolhedora
+
+---
+
+## Conclusão: Retomando Nossa Identidade
+
+O nome Pindorama carrega em si uma **visão de mundo** que pode inspirar um novo projeto de nação. Uma nação que:
+
+- Respeita seus povos originários
+- Preserva sua biodiversidade
+- Valoriza sua cultura ancestral
+- Constrói soberania com sustentabilidade
+
+Quando dizemos "Pindorama", não estamos apenas pronunciando um nome. Estamos **invocando uma identidade** que precede a colonização e que pode orientar nosso futuro como nação soberana.
+
+*Que Pindorama ressurja não apenas como nome, mas como projeto de vida coletiva em harmonia com nossa terra sagrada.*
+
+export default function Page({ children }) {
+  return (
+    <div className="mdx-content">
+      {children}
+    </div>
+  );
+}

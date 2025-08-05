@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <!-- Fundo verde e amarelo representando as cores da bandeira brasileira -->
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#009c3b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ffdf00;stop-opacity:0.8" />
+    </linearGradient>
+    <pattern id="pattern1" width="60" height="60" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="30" height="30" fill="rgba(0,156,59,0.2)" />
+      <rect x="30" y="30" width="30" height="30" fill="rgba(0,156,59,0.2)" />
+    </pattern>
+  </defs>
+  
+  <!-- Fundo com gradiente -->
+  <rect width="100%" height="100%" fill="url(#grad1)" />
+  
+  <!-- Padrão sobreposto -->
+  <rect width="100%" height="100%" fill="url(#pattern1)" />
+  
+  <!-- Elementos decorativos representando a cultura brasileira -->
+  <!-- Círculo central inspirado na bandeira -->
+  <circle cx="960" cy="540" r="200" fill="rgba(0,39,118,0.15)" />
+  
+  <!-- Elementos abstratos representando diversidade cultural -->
+  <g opacity="0.2">
+    <!-- Formas abstratas inspiradas em arte indígena -->
+    <path d="M300,200 Q400,100 500,200 T700,200 Q800,300 700,400 T500,400 Q400,300 300,200 Z" fill="#ffdf00" />
+    <path d="M1200,800 Q1300,700 1400,800 T1600,800 Q1700,900 1600,1000 T1400,1000 Q1300,900 1200,800 Z" fill="#ffdf00" />
+    
+    <!-- Padrões geométricos inspirados em arte marajoara -->
+    <path d="M100,500 L200,600 L100,700 L0,600 Z" fill="#009c3b" />
+    <path d="M1800,300 L1900,400 L1800,500 L1700,400 Z" fill="#009c3b" />
+    
+    <!-- Formas onduladas representando o ritmo da música brasileira -->
+    <path d="M0,900 Q240,800 480,900 Q720,1000 960,900 Q1200,800 1440,900 Q1680,1000 1920,900" stroke="#ffdf00" stroke-width="10" fill="none" />
+    <path d="M0,100 Q240,200 480,100 Q720,0 960,100 Q1200,200 1440,100 Q1680,0 1920,100" stroke="#009c3b" stroke-width="10" fill="none" />
+  </g>
+  
+  <!-- Elementos sutis de folhagem tropical -->
+  <g opacity="0.1">
+    <path d="M100,100 C200,50 300,150 400,100 S500,50 600,100" stroke="#009c3b" stroke-width="20" fill="none" />
+    <path d="M1300,980 C1400,930 1500,1030 1600,980 S1700,930 1800,980" stroke="#009c3b" stroke-width="20" fill="none" />
+    <path d="M1800,200 C1700,150 1600,250 1500,200 S1400,150 1300,200" stroke="#ffdf00" stroke-width="20" fill="none" />
+    <path d="M600,880 C500,830 400,930 300,880 S200,830 100,880" stroke="#ffdf00" stroke-width="20" fill="none" />
+  </g>
+</svg>

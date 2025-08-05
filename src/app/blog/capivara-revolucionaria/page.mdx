@@ -1,0 +1,88 @@
+import MDXComponents from '../components/MDXComponents';
+
+export const metadata = {
+  title: 'A Capivara Revolucionária: Símbolo da Resistência Brasileira',
+  description: 'Descubra como a capivara se tornou um ícone da luta pela soberania nacional e liberdade do povo brasileiro.',
+  author: 'Equipe Pindorama',
+  date: '2024-01-15',
+  category: 'História',
+  readTime: '5 min'
+};
+
+<div className="mb-8">
+  <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+    <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full font-medium">
+      {metadata.category}
+    </span>
+    <span>{metadata.author}</span>
+    <span>•</span>
+    <span>{new Date(metadata.date).toLocaleDateString('pt-BR', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+    <span>•</span>
+    <span>{metadata.readTime} de leitura</span>
+  </div>
+</div>
+
+# A Capivara Revolucionária: Símbolo da Resistência Brasileira
+
+<div className="aspect-[16/9] bg-gradient-to-br from-green-100 to-yellow-100 rounded-2xl flex items-center justify-center mb-8">
+  <div className="text-8xl">🦫</div>
+</div>
+
+A capivara, maior roedor do mundo e animal genuinamente sul-americano, transcendeu sua condição de fauna nativa para se tornar um **símbolo poderoso da resistência brasileira**. Mas como esse mamífero pacífico e sociável conquistou um lugar tão especial no imaginário da luta pela soberania nacional?
+
+## Origens do Simbolismo
+
+A escolha da capivara como ícone revolucionário não foi acidental. Este animal representa características fundamentais que ecoam os valores da resistência brasileira:
+
+- **Adaptabilidade**: Capivaras prosperam em diversos ambientes, desde pantanais até áreas urbanas
+- **Coletividade**: Vivem em grupos harmoniosos, demonstrando a força da união
+- **Resistência**: Sobrevivem a predadores e adversidades com inteligência e paciência
+- **Brasilidade**: São exclusivamente sul-americanas, representando nossa identidade continental
+
+> "A capivara nos ensina que a verdadeira revolução não vem da violência, mas da persistência, da adaptação e da união do povo." - Manifesto Pindorama
+
+## A Capivara na Cultura Popular
+
+Nos últimos anos, a capivara ganhou destaque nas redes sociais e na cultura digital brasileira, tornando-se um **meme de resistência**. Sua imagem tranquila contrastando com contextos militares ou revolucionários cria uma ironia poderosa que ressoa com a juventude brasileira.
+
+### Características Simbólicas:
+
+1. **Calma revolucionária**: A capivara mantém a serenidade mesmo em situações adversas
+2. **Liderança natural**: Outros animais frequentemente seguem capivaras, reconhecendo sua sabedoria
+3. **Conexão com a terra**: Representam a ligação profunda com o território brasileiro
+
+## O Movimento Capivara
+
+O "Movimento Capivara" representa uma nova forma de ativismo político no Brasil, caracterizada por:
+
+- **Resistência pacífica** mas determinada
+- **Humor como arma** contra a opressão
+- **Valorização da fauna** e flora nacionais
+- **Crítica social** através de símbolos populares
+
+## Impacto Cultural
+
+A capivara revolucionária transcendeu o ativismo digital para influenciar:
+
+- **Arte urbana**: Grafites e murais em grandes cidades
+- **Moda**: Estampas em camisetas e acessórios
+- **Literatura**: Personagens em livros e quadrinhos
+- **Música**: Referências em letras de rap e música popular
+
+---
+
+## Conclusão
+
+A capivara revolucionária representa mais que um meme ou símbolo passageiro. Ela encarna uma **nova forma de resistência brasileira**: inteligente, adaptável, coletiva e profundamente conectada com nossa identidade nacional.
+
+Em um mundo onde a luta pela soberania nacional exige criatividade e união, a capivara nos lembra que **a verdadeira revolução começa com a valorização do que é genuinamente nosso**.
+
+*Que a sabedoria da capivara nos guie na construção de um Brasil verdadeiramente soberano e livre.*
+
+export default function Page({ children }) {
+  return (
+    <div className="mdx-content">
+      {children}
+    </div>
+  );
+}
