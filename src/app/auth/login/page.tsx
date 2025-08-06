@@ -45,7 +45,7 @@ export default function LoginPage() {
         setError('Email ou senha incorretos')
       } else {
         const session = await getSession()
-        if (session?.user?.role === 'admin') {
+        if (session?.user?.role?.toLowerCase() === 'admin') {
           router.push('/admin/dashboard')
         } else {
           router.push('/user/dashboard')

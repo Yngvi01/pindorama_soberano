@@ -25,8 +25,9 @@ export default function Navbar() {
             <li><Link href="/" className="hover:text-gray-300 transition duration-200">Início</Link></li>
             <li>
               <button
+                type="button"
                 onClick={() => setOpen((x) => !x)}
-                aria-expanded={open}
+                aria-expanded="false"
                 className="hover:text-gray-300 transition duration-200 flex items-center gap-1"
               >
                 Produtos
@@ -95,14 +96,14 @@ function AuthSection() {
     return (
       <div className="flex items-center space-x-4">
         <Link 
-          href="/login" 
+          href="/auth/login" 
           className="text-white hover:text-gray-300 transition duration-200 flex items-center space-x-1"
         >
           <User className="h-4 w-4" />
           <span>Entrar</span>
         </Link>
         <Link 
-          href="/register" 
+          href="/auth/register" 
           className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-200"
         >
           Cadastrar
@@ -118,7 +119,9 @@ function AuthSection() {
   return (
     <div className="relative">
       <button
+        type="button"
         onClick={() => setUserMenuOpen(!userMenuOpen)}
+        aria-expanded="false"
         className="flex items-center space-x-2 text-white hover:text-gray-300 transition duration-200"
       >
         <div className="h-8 w-8 rounded-full bg-green-600 flex items-center justify-center">
@@ -127,8 +130,10 @@ function AuthSection() {
           </span>
         </div>
         <span className="hidden md:block">{session.user.name}</span>
-        {session.user.role === 'admin' && (
-          <Shield className="h-4 w-4 text-yellow-400" title="Administrador" />
+        {session.user.role?.toLowerCase() === 'admin' && (
+          <span title="Administrador">
+            <Shield className="h-4 w-4 text-yellow-400" />
+          </span>
         )}
       </button>
 
@@ -140,7 +145,7 @@ function AuthSection() {
             <p className="text-xs text-gray-500 capitalize">{session.user.role}</p>
           </div>
           
-          {session.user.role === 'admin' ? (
+          {session.user.role?.toLowerCase() === 'admin' ? (
             <Link
               href="/admin/dashboard"
               className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -161,15 +166,16 @@ function AuthSection() {
           )}
           
           <Link
-            href={session.user.role === 'admin' ? '/admin/dashboard' : '/user/profile'}
+            href={session.user.role?.toLowerCase() === 'admin' ? '/admin/dashboard' : '/user/profile'}
             className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
             onClick={() => setUserMenuOpen(false)}
           >
             <Settings className="h-4 w-4 mr-2" />
-            {session.user.role === 'admin' ? 'Configurações' : 'Perfil'}
+            {session.user.role?.toLowerCase() === 'admin' ? 'Configurações' : 'Perfil'}
           </Link>
           
           <button
+            type="button"
             onClick={() => {
               setUserMenuOpen(false)
               handleSignOut()

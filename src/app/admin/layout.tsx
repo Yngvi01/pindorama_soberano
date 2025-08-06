@@ -29,11 +29,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     if (status === 'loading') return
     
     if (!session) {
-      router.push('/login')
+      router.push('/auth/login')
       return
     }
 
-    if (session.user.role !== 'admin') {
+    if (session.user?.role?.toLowerCase() !== 'admin') {
       router.push('/user/dashboard')
       return
     }
@@ -94,6 +94,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               type="button"
               className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
               onClick={() => setSidebarOpen(false)}
+              aria-label="Fechar menu"
             >
               <X className="h-6 w-6 text-white" />
             </button>
@@ -190,6 +191,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             type="button"
             className="-ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-green-500"
             onClick={() => setSidebarOpen(true)}
+            aria-label="Abrir menu"
           >
             <Menu className="h-6 w-6" />
           </button>

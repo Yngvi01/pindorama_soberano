@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth/next'
-import { authOptions } from '../../auth/[...nextauth]/route'
+import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
-import bcrypt from 'bcryptjs'
+import * as bcrypt from 'bcryptjs'
 
 const createUserSchema = z.object({
   name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
@@ -15,7 +14,7 @@ const createUserSchema = z.object({
 // GET - Listar todos os usuários
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await auth()
     
     if (!session || !session.user || session.user.role !== 'admin') {
       return NextResponse.json(
@@ -33,7 +32,13 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit
 
     // Construir filtros
-    const where: any = {}
+    const where: {
+      OR?: Array<{
+        name?: { contains: string; mode: 'insensitive' }
+        email?: { contains: string; mode: 'insensitive' }
+      }>
+      role?: string
+    } = {}
     
     if (search) {
       where.OR = [
@@ -87,7 +92,7 @@ export async function GET(request: NextRequest) {
 // POST - Criar novo usuário
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await auth()
     
     if (!session || !session.user || session.user.role !== 'admin') {
       return NextResponse.json(
@@ -139,7 +144,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Dados inválidos', details: error.errors },
+        { error: 'Dados inválidos', details: error.issues },
         { status: 400 }
       )
     }

@@ -40,24 +40,24 @@ const ParticlesBackground = () => {
       speedY: number
       color: string
       
-      constructor() {
-        this.x = Math.random() * canvas.width
-        this.y = Math.random() * canvas.height
+      constructor(canvasWidth: number, canvasHeight: number) {
+        this.x = Math.random() * canvasWidth
+        this.y = Math.random() * canvasHeight
         this.size = Math.random() * 5 + 1
         this.speedX = Math.random() * 1 - 0.5
         this.speedY = Math.random() * 1 - 0.5
         this.color = colors[Math.floor(Math.random() * colors.length)]
       }
       
-      update() {
+      update(canvasWidth: number, canvasHeight: number) {
         this.x += this.speedX
         this.y += this.speedY
         
         // Rebater nas bordas
-        if (this.x > canvas.width || this.x < 0) {
+        if (this.x > canvasWidth || this.x < 0) {
           this.speedX = -this.speedX
         }
-        if (this.y > canvas.height || this.y < 0) {
+        if (this.y > canvasHeight || this.y < 0) {
           this.speedY = -this.speedY
         }
       }
@@ -74,7 +74,7 @@ const ParticlesBackground = () => {
     // Inicializar partículas
     const init = () => {
       for (let i = 0; i < numberOfParticles; i++) {
-        particlesArray.push(new Particle())
+        particlesArray.push(new Particle(canvas.width, canvas.height))
       }
     }
     init()
@@ -109,7 +109,7 @@ const ParticlesBackground = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       
       for (let i = 0; i < particlesArray.length; i++) {
-        particlesArray[i].update()
+        particlesArray[i].update(canvas.width, canvas.height)
         particlesArray[i].draw()
       }
       connect()

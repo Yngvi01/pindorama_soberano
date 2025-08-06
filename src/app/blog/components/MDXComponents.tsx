@@ -7,7 +7,7 @@ interface MDXComponentsProps {
   href?: string;
   src?: string;
   alt?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Componentes customizados para MDX

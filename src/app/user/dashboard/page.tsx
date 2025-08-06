@@ -2,6 +2,7 @@
 
 import { useSession } from 'next-auth/react'
 import { Calendar, Clock, User, Mail, Shield } from 'lucide-react'
+import Link from 'next/link'
 
 export default function UserDashboard() {
   const { data: session } = useSession()
@@ -127,20 +128,20 @@ export default function UserDashboard() {
               <div className="font-medium">Editar Perfil</div>
               <div className="text-sm text-green-600">Atualize suas informações pessoais</div>
             </a>
-            <a
+            <Link
               href="/user/settings"
               className="block w-full text-left px-4 py-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors"
             >
               <div className="font-medium">Configurações</div>
               <div className="text-sm text-blue-600">Gerencie suas preferências</div>
-            </a>
-            <a
+            </Link>
+            <Link
               href="/"
               className="block w-full text-left px-4 py-3 bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
             >
               <div className="font-medium">Voltar ao Site</div>
               <div className="text-sm text-gray-600">Navegar pelo Pindorama Soberano</div>
-            </a>
+            </Link>
           </div>
         </div>
       </div>

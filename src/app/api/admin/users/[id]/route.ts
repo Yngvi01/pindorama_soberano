@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth/next'
-import { authOptions } from '../../../auth/[...nextauth]/route'
+import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
-import bcrypt from 'bcryptjs'
+import * as bcrypt from 'bcryptjs'
 
 const updateUserSchema = z.object({
   name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres').optional(),
@@ -12,16 +11,14 @@ const updateUserSchema = z.object({
   role: z.enum(['user', 'admin']).optional(),
 })
 
-interface RouteParams {
-  params: {
-    id: string
-  }
-}
-
 // GET - Buscar usuário específico
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(
+  request: NextRequest, 
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const session = await getServerSession(authOptions)
+    const { id } = await params
+    const session = await auth()
     
     if (!session || !session.user || session.user.role !== 'admin') {
       return NextResponse.json(
@@ -31,7 +28,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: {
         id: true,
         name: true,
@@ -60,9 +57,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 }
 
 // PATCH - Atualizar usuário
-export async function PATCH(request: NextRequest, { params }: RouteParams) {
+export async function PATCH(
+  request: NextRequest, 
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const session = await getServerSession(authOptions)
+    const { id } = await params
+    const session = await auth()
     
     if (!session || !session.user || session.user.role !== 'admin') {
       return NextResponse.json(
@@ -73,7 +74,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     // Verificar se o usuário existe
     const existingUser = await prisma.user.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!existingUser) {
@@ -85,7 +86,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     // Impedir que o admin altere seu próprio role
     const body = await request.json()
-    if (body.role && params.id === session.user.id) {
+    if (body.role && id === session.user.id) {
       return NextResponse.json(
         { error: 'Você não pode alterar seu próprio tipo de usuário' },
         { status: 400 }
@@ -109,7 +110,12 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     }
 
     // Preparar dados para atualização
-    const updateData: any = {}
+    const updateData: {
+      name?: string
+      email?: string
+      role?: 'user' | 'admin'
+      password?: string
+    } = {}
     
     if (validatedData.name) updateData.name = validatedData.name
     if (validatedData.email) updateData.email = validatedData.email
@@ -121,7 +127,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     // Atualizar usuário
     const updatedUser = await prisma.user.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
       select: {
         id: true,
@@ -140,7 +146,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Dados inválidos', details: error.errors },
+        { error: 'Dados inválidos', details: error.issues },
         { status: 400 }
       )
     }
@@ -154,9 +160,13 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 }
 
 // DELETE - Excluir usuário
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
+export async function DELETE(
+  request: NextRequest, 
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const session = await getServerSession(authOptions)
+    const { id } = await params
+    const session = await auth()
     
     if (!session || !session.user || session.user.role !== 'admin') {
       return NextResponse.json(
@@ -166,7 +176,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     // Impedir que o admin exclua a si mesmo
-    if (params.id === session.user.id) {
+    if (id === session.user.id) {
       return NextResponse.json(
         { error: 'Você não pode excluir sua própria conta' },
         { status: 400 }
@@ -175,7 +185,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     // Verificar se o usuário existe
     const existingUser = await prisma.user.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!existingUser) {
@@ -186,7 +196,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     // Verificar se é o último admin
-    if (existingUser.role === 'admin') {
+    if (existingUser.role?.toLowerCase() === 'admin') {
       const adminCount = await prisma.user.count({
         where: { role: 'admin' }
       })
@@ -201,7 +211,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     // Excluir usuário
     await prisma.user.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json({
