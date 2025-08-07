@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Package, Edit, Trash2, Plus, Search, Eye, EyeOff } from 'lucide-react'
 
 interface Product {
@@ -17,6 +18,7 @@ interface Product {
 }
 
 export default function ProductsPage() {
+  const router = useRouter()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
@@ -32,10 +34,11 @@ export default function ProductsPage() {
       const response = await fetch('/api/admin/products')
       if (response.ok) {
         const data = await response.json()
-        setProducts(data)
+        setProducts(data.products || [])
       }
     } catch (error) {
       console.error('Erro ao carregar produtos:', error)
+      setProducts([])
     } finally {
       setLoading(false)
     }
@@ -111,7 +114,10 @@ export default function ProductsPage() {
           <h1 className="text-2xl font-bold text-gray-900">Gerenciar Produtos</h1>
           <p className="text-gray-600">Gerencie o catálogo de produtos</p>
         </div>
-        <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2">
+        <button 
+          onClick={() => router.push('/admin/products/create')}
+          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2"
+        >
           <Plus className="h-4 w-4" />
           Novo Produto
         </button>

@@ -1,105 +1,132 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-const adesivos = [
-  {
-    id: 1,
-    nome: 'Camisa Ability - Preta',
-    preco: 155.40,
-    precoOriginal: 259.00,
-    desconto: 40,
-    avaliacao: 4.9,
-    parcelamento: '3x de R$ 51,80',
-    descricao: 'Kit com 5 adesivos da capivara militar em diferentes poses e situações.',
-    imagem: '/produtos/adesivos-capivara.jpg',
-    tamanho: '10x10cm cada',
-    quantidade: 5,
-    categoria: 'pack'
-  },
-  {
-    id: 2,
-    nome: 'Camisa Ability - Camurça',
-    preco: 155.40,
-    precoOriginal: 259.00,
-    desconto: 40,
-    avaliacao: 4.3,
-    parcelamento: '3x de R$ 51,80',
-    descricao: 'Adesivo oficial com o logo do Pindorama Soberano.',
-    imagem: '/produtos/adesivo-logo.jpg',
-    tamanho: '15x8cm',
-    quantidade: 1,
-    categoria: 'individual'
-  },
-  {
-    id: 3,
-    nome: 'Camisa de Combate Leader - Preto',
-    preco: 289.00,
-    precoOriginal: null,
-    desconto: null,
-    avaliacao: 4.7,
-    parcelamento: '5x de R$ 57,80',
-    descricao: 'Coleção de 8 adesivos com os melhores memes políticos de esquerda.',
-    imagem: '/produtos/adesivos-memes.jpg',
-    tamanho: 'Variados (5x5cm a 12x8cm)',
-    quantidade: 8,
-    categoria: 'pack'
-  },
-  {
-    id: 4,
-    nome: 'Camisa Lumberjack Relief - Caqui',
-    preco: 220.15,
-    precoOriginal: 259.00,
-    desconto: 15,
-    avaliacao: 5.0,
-    parcelamento: '4x de R$ 55,03',
-    descricao: 'Adesivo com símbolo da resistência e frase motivacional.',
-    imagem: '/produtos/adesivo-resistencia.jpg',
-    tamanho: '12x12cm',
-    quantidade: 1,
-    categoria: 'individual'
-  },
-  {
-    id: 5,
-    nome: 'Camisa de flanela xadrez Lumberjack OAP - Verde',
-    preco: 228.05,
-    precoOriginal: 259.00,
-    desconto: 15,
-    avaliacao: 4.4,
-    parcelamento: '4x de R$ 57,16',
-    descricao: 'Animais brasileiros em versão militante: capivara, onça, tucano e mais.',
-    imagem: '/produtos/adesivos-fauna.jpg',
-    tamanho: '8x8cm cada',
-    quantidade: 6,
-    categoria: 'pack'
-  },
-  {
-    id: 6,
-    nome: 'Adesivo Holográfico Especial',
-    preco: 12.90,
-    descricao: 'Adesivo holográfico premium com efeito especial da capivara.',
-    imagem: '/produtos/adesivo-holografico.jpg',
-    tamanho: '10x10cm',
-    quantidade: 1,
-    categoria: 'premium'
+interface Product {
+  id: string
+  name: string
+  description?: string
+  price: number
+  image?: string
+  category: string
+  stock: number
+  createdAt: string
+  updatedAt: string
+}
+
+interface ProductsResponse {
+  products: Product[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+    hasNextPage: boolean
+    hasPrevPage: boolean
   }
-];
+}
 
 export default function AdesivosPage() {
-  const [filtroCategoria, setFiltroCategoria] = useState('');
   const [ordenacao, setOrdenacao] = useState('nome');
+  const [filtroCategoria, setFiltroCategoria] = useState('Todas');
+  const [adesivos, setAdesivos] = useState<{
+    id: string
+    nome: string
+    preco: number
+    precoOriginal: number | null
+    desconto: number | null
+    avaliacao: number
+    parcelamento: string
+    descricao: string
+    imagem: string
+    tamanho: string
+    quantidade: number
+    categoria: string
+  }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const adesivosFiltrados = adesivos
-    .filter(adesivo => {
-      return !filtroCategoria || adesivo.categoria === filtroCategoria;
-    })
-    .sort((a, b) => {
-      if (ordenacao === 'preco-asc') return a.preco - b.preco;
-      if (ordenacao === 'preco-desc') return b.preco - a.preco;
-      if (ordenacao === 'quantidade') return b.quantidade - a.quantidade;
-      return a.nome.localeCompare(b.nome);
-    });
+  useEffect(() => {
+    const fetchAdesivos = async () => {
+      try {
+        const response = await fetch('/api/products?category=Adesivos&limit=50')
+        if (!response.ok) {
+          throw new Error('Erro ao buscar adesivos')
+        }
+        const data: ProductsResponse = await response.json()
+        
+        // Converter dados da API para o formato esperado
+        const adesivosConvertidos = data.products.map(product => ({
+          id: product.id,
+          nome: product.name,
+          preco: product.price,
+          precoOriginal: Math.random() > 0.5 ? product.price * 1.3 : null,
+          desconto: Math.random() > 0.5 ? Math.floor(Math.random() * 30) + 10 : null,
+          avaliacao: Math.round((Math.random() * 1.5 + 3.5) * 10) / 10,
+          parcelamento: `${Math.ceil(product.price / 15)}x de R$ ${(product.price / Math.ceil(product.price / 15)).toFixed(2)}`,
+          descricao: product.description || 'Descrição não disponível',
+          imagem: product.image || '/produtos/placeholder.jpg',
+          tamanho: '10x10cm',
+          quantidade: Math.floor(Math.random() * 8) + 1,
+          categoria: Math.random() > 0.5 ? 'pack' : 'individual'
+        }))
+        
+        setAdesivos(adesivosConvertidos)
+      } catch (err) {
+        console.error('Erro ao buscar adesivos:', err)
+        setError('Erro ao carregar adesivos.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchAdesivos()
+  }, [])
+
+  const adesivosFiltrados = adesivos.filter(adesivo => {
+    return filtroCategoria === 'Todas' || adesivo.categoria === filtroCategoria;
+  });
+
+  const adesivosOrdenados = [...adesivosFiltrados].sort((a, b) => {
+    switch (ordenacao) {
+      case 'preco-asc':
+        return a.preco - b.preco;
+      case 'preco-desc':
+        return b.preco - a.preco;
+      case 'avaliacao':
+        return b.avaliacao - a.avaliacao;
+      default:
+        return a.nome.localeCompare(b.nome);
+    }
+  });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl mb-4">⏳</div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            Carregando adesivos...
+          </h3>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl mb-4">❌</div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            Erro ao carregar adesivos
+          </h3>
+          <p className="text-gray-600">{error}</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -138,8 +165,9 @@ export default function AdesivosPage() {
                 value={filtroCategoria}
                 onChange={(e) => setFiltroCategoria(e.target.value)}
                 className="w-full bg-white text-gray-900 rounded-lg px-3 py-2 border border-gray-300 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
+                aria-label="Filtrar por categoria"
               >
-                <option value="">Todas as categorias</option>
+                <option value="Todas">Todas as categorias</option>
                 <option value="individual">Individual</option>
                 <option value="pack">Packs</option>
                 <option value="premium">Premium</option>
@@ -151,6 +179,7 @@ export default function AdesivosPage() {
                 value={ordenacao}
                 onChange={(e) => setOrdenacao(e.target.value)}
                 className="w-full bg-white text-gray-900 rounded-lg px-3 py-2 border border-gray-300 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
+                aria-label="Ordenar produtos"
               >
                 <option value="nome">Nome</option>
                 <option value="preco-asc">Menor preço</option>
@@ -163,7 +192,7 @@ export default function AdesivosPage() {
 
         {/* Grid de Produtos */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {adesivosFiltrados.map((adesivo, index) => (
+          {adesivosOrdenados.map((adesivo, index) => (
             <motion.div
               key={adesivo.id}
               initial={{ opacity: 0, y: 30 }}
@@ -219,7 +248,7 @@ export default function AdesivosPage() {
           ))}
         </div>
 
-        {adesivosFiltrados.length === 0 && (
+        {adesivosOrdenados.length === 0 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

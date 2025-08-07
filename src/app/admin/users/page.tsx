@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { User, Edit, Trash2, Plus, Search, UserCheck, UserX } from 'lucide-react'
 
 interface User {
@@ -13,6 +14,7 @@ interface User {
 }
 
 export default function UsersPage() {
+  const router = useRouter()
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
@@ -27,7 +29,7 @@ export default function UsersPage() {
       const response = await fetch('/api/admin/users')
       if (response.ok) {
         const data = await response.json()
-        setUsers(data)
+        setUsers(data.users || [])
       }
     } catch (error) {
       console.error('Erro ao carregar usuários:', error)
@@ -206,6 +208,7 @@ export default function UsersPage() {
                         {user.role === 'admin' ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
                       </button>
                       <button
+                        onClick={() => router.push(`/admin/users/${user.id}/edit`)}
                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
                         title="Editar usuário"
                       >

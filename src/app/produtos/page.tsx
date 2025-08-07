@@ -2,12 +2,34 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
+interface Product {
+  id: string
+  name: string
+  description?: string
+  price: number
+  image?: string
+  category: string
+  stock: number
+  createdAt: string
+  updatedAt: string
+}
 
+interface ProductsResponse {
+  products: Product[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+    hasNextPage: boolean
+    hasPrevPage: boolean
+  }
+}
 
-// Todos os produtos individuais de todas as categorias
-const todosProdutos = [
+// Produtos estáticos como fallback
+const produtosEstaticos = [
   // Camisas
   {
     id: 'camisa-1',
@@ -137,10 +159,65 @@ const todosProdutos = [
 export default function ProdutosPage() {
   const [filtroCategoria, setFiltroCategoria] = useState('Todos');
   const [ordenacao, setOrdenacao] = useState('nome');
+  const [produtos, setProdutos] = useState<{
+    id: string
+    nome: string
+    preco: number
+    precoOriginal: number | null
+    desconto: number | null
+    avaliacao: number
+    parcelamento: string
+    descricao: string
+    categoria: string
+    imagem: string
+  }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  // Buscar produtos do banco de dados
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch('/api/products?limit=50')
+        
+        if (!response.ok) {
+          throw new Error('Erro ao carregar produtos')
+        }
+        
+        const data: ProductsResponse = await response.json()
+        
+        // Converter produtos do banco para o formato esperado
+        const produtosConvertidos = data.products.map(product => ({
+          id: product.id,
+          nome: product.name,
+          preco: product.price,
+          precoOriginal: null,
+          desconto: null,
+          avaliacao: 4.5, // Valor padrão
+          parcelamento: `3x de R$ ${(product.price / 3).toFixed(2)}`,
+          descricao: product.description || 'Produto de qualidade',
+          categoria: product.category,
+          imagem: product.image || '/produtos/placeholder.jpg'
+        }))
+        
+        setProdutos(produtosConvertidos)
+      } catch (err) {
+        console.error('Erro ao buscar produtos:', err)
+        setError('Erro ao carregar produtos. Usando dados de exemplo.')
+        // Usar produtos estáticos como fallback
+        setProdutos(produtosEstaticos)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProducts()
+  }, [])
   
-  const categorias = ['Todos', 'Camisas', 'Moletons', 'Adesivos', 'Posters'];
+  const categorias = ['Todos', ...Array.from(new Set(produtos.map(produto => produto.categoria)))];
   
-  const produtosFiltrados = todosProdutos.filter(produto => 
+  const produtosFiltrados = produtos.filter(produto => 
     filtroCategoria === 'Todos' || produto.categoria === filtroCategoria
   );
   
@@ -156,6 +233,17 @@ export default function ProdutosPage() {
         return a.nome.localeCompare(b.nome);
     }
   });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-4xl mb-4">⏳</div>
+          <p className="text-gray-600">Carregando produtos...</p>
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="min-h-screen bg-white">
 
@@ -213,6 +301,7 @@ export default function ProdutosPage() {
               <select
                 value={ordenacao}
                 onChange={(e) => setOrdenacao(e.target.value)}
+                aria-label="Ordenar produtos"
                 className="w-full bg-white text-gray-900 rounded-lg px-3 py-2 border border-gray-300 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
               >
                 <option value="nome">Nome</option>

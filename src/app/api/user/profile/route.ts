@@ -3,9 +3,28 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 
+interface UpdateUserData {
+  name?: string
+  email?: string
+  phone?: string | null
+  address?: string | null
+  city?: string | null
+  state?: string | null
+  zipCode?: string | null
+  country?: string | null
+  birthDate?: Date | null
+}
+
 const updateProfileSchema = z.object({
-  name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
-  email: z.string().email('Email inválido'),
+  name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres').optional(),
+  email: z.string().email('Email inválido').optional(),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  zipCode: z.string().optional(),
+  country: z.string().optional(),
+  birthDate: z.string().nullable().optional(),
 })
 
 export async function PUT(request: NextRequest) {
@@ -23,7 +42,7 @@ export async function PUT(request: NextRequest) {
     const validatedData = updateProfileSchema.parse(body)
 
     // Verificar se o email já está em uso por outro usuário
-    if (validatedData.email !== session.user.email) {
+    if (validatedData.email && validatedData.email !== session.user.email) {
       const existingUser = await prisma.user.findUnique({
         where: { email: validatedData.email }
       })
@@ -36,17 +55,36 @@ export async function PUT(request: NextRequest) {
       }
     }
 
+    // Preparar dados para atualização
+    const updateData: UpdateUserData = {}
+    if (validatedData.name) updateData.name = validatedData.name
+    if (validatedData.email) updateData.email = validatedData.email
+    if (validatedData.phone !== undefined) updateData.phone = validatedData.phone
+    if (validatedData.address !== undefined) updateData.address = validatedData.address
+    if (validatedData.city !== undefined) updateData.city = validatedData.city
+    if (validatedData.state !== undefined) updateData.state = validatedData.state
+    if (validatedData.zipCode !== undefined) updateData.zipCode = validatedData.zipCode
+    if (validatedData.country !== undefined) updateData.country = validatedData.country
+    if (validatedData.birthDate !== undefined) {
+      updateData.birthDate = validatedData.birthDate ? new Date(validatedData.birthDate) : null
+    }
+
     // Atualizar o usuário
     const updatedUser = await prisma.user.update({
       where: { id: session.user.id },
-      data: {
-        name: validatedData.name,
-        email: validatedData.email,
-      },
+      data: updateData,
       select: {
         id: true,
         name: true,
         email: true,
+        phone: true,
+        address: true,
+        city: true,
+        state: true,
+        zipCode: true,
+        country: true,
+        birthDate: true,
+        image: true,
         role: true,
       }
     })
@@ -89,6 +127,14 @@ export async function GET(request: NextRequest) {
         id: true,
         name: true,
         email: true,
+        phone: true,
+        address: true,
+        city: true,
+        state: true,
+        zipCode: true,
+        country: true,
+        birthDate: true,
+        image: true,
         role: true,
         createdAt: true,
       }
@@ -101,7 +147,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    return NextResponse.json({ user })
+    return NextResponse.json(user)
 
   } catch (error) {
     console.error('Erro ao buscar perfil:', error)

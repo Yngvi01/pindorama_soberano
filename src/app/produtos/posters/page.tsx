@@ -1,116 +1,120 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-const posters = [
-  {
-    id: 1,
-    nome: 'Camisa Ability - Preta',
-    preco: 155.40,
-    precoOriginal: 259.00,
-    desconto: 40,
-    avaliacao: 4.9,
-    parcelamento: '3x de R$ 51,80',
-    descricao: 'Arte exclusiva da capivara militar em pose heroica, perfeita para decorar seu ambiente.',
-    imagem: '/produtos/poster-capivara-comandante.jpg',
-    tamanhos: ['A4 (21x30cm)', 'A3 (30x42cm)', 'A2 (42x59cm)'],
-    acabamento: ['Papel Fotográfico', 'Canvas'],
-    categoria: 'arte-original'
-  },
-  {
-    id: 2,
-    nome: 'Camisa Ability - Camurça',
-    preco: 155.40,
-    precoOriginal: 259.00,
-    desconto: 40,
-    avaliacao: 4.3,
-    parcelamento: '3x de R$ 51,80',
-    descricao: 'Releitura brasileira do clássico com animais da fauna nacional em luta pela liberdade.',
-    imagem: '/produtos/poster-revolucao-bichos.jpg',
-    tamanhos: ['A4 (21x30cm)', 'A3 (30x42cm)'],
-    acabamento: ['Papel Fotográfico', 'Canvas'],
-    categoria: 'arte-original'
-  },
-  {
-    id: 3,
-    nome: 'Camisa de Combate Leader - Preto',
-    preco: 289.00,
-    precoOriginal: null,
-    desconto: null,
-    avaliacao: 4.7,
-    parcelamento: '5x de R$ 57,80',
-    descricao: 'Compilação dos melhores memes políticos em formato artístico.',
-    imagem: '/produtos/poster-meme-collection.jpg',
-    tamanhos: ['A4 (21x30cm)', 'A3 (30x42cm)', 'A2 (42x59cm)'],
-    acabamento: ['Papel Fotográfico'],
-    categoria: 'memes'
-  },
-  {
-    id: 4,
-    nome: 'Camisa Lumberjack Relief - Caqui',
-    preco: 220.15,
-    precoOriginal: 259.00,
-    desconto: 15,
-    avaliacao: 5.0,
-    parcelamento: '4x de R$ 55,03',
-    descricao: 'Representação artística do Brasil livre e soberano com elementos da natureza.',
-    imagem: '/produtos/poster-pindorama-livre.jpg',
-    tamanhos: ['A3 (30x42cm)', 'A2 (42x59cm)', 'A1 (59x84cm)'],
-    acabamento: ['Papel Fotográfico', 'Canvas', 'Papel Fine Art'],
-    categoria: 'arte-original'
-  },
-  {
-    id: 5,
-    nome: 'Camisa de flanela xadrez Lumberjack OAP - Verde',
-    preco: 228.05,
-    precoOriginal: 269.00,
-    desconto: 15,
-    avaliacao: 4.8,
-    parcelamento: '4x de R$ 57,16',
-    descricao: 'Arte inspirada nos movimentos de resistência com símbolos da luta popular.',
-    imagem: '/produtos/poster-resistencia.jpg',
-    tamanhos: ['A4 (21x30cm)', 'A3 (30x42cm)'],
-    acabamento: ['Papel Fotográfico', 'Canvas'],
-    categoria: 'politico'
-  },
-  {
-    id: 6,
-    nome: 'Camisa Ability - Azul',
-    preco: 155.40,
-    precoOriginal: 259.00,
-    desconto: 40,
-    avaliacao: 4.6,
-    parcelamento: '3x de R$ 51,80',
-    descricao: 'Coleção de animais brasileiros em versão militante e cartoon.',
-    imagem: '/produtos/poster-fauna-militante.jpg',
-    tamanhos: ['A4 (21x30cm)', 'A3 (30x42cm)', 'A2 (42x59cm)'],
-    acabamento: ['Papel Fotográfico', 'Canvas'],
-    categoria: 'arte-original'
-  },
-  {
-    id: 7,
-    nome: 'Pôster Edição Limitada - Capivara Gold',
-    preco: 59.90,
-    descricao: 'Edição limitada com acabamento especial dourado e numeração.',
-    imagem: '/produtos/poster-capivara-gold.jpg',
-    tamanhos: ['A3 (30x42cm)', 'A2 (42x59cm)'],
-    acabamento: ['Papel Fine Art', 'Canvas Premium'],
-    categoria: 'edicao-limitada'
+interface Product {
+  id: string
+  name: string
+  description?: string
+  price: number
+  image?: string
+  category: string
+  stock: number
+  createdAt: string
+  updatedAt: string
+}
+
+interface ProductsResponse {
+  products: Product[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+    hasNextPage: boolean
+    hasPrevPage: boolean
   }
-];
+}
 
 export default function PostersPage() {
-  const [filtroCategoria, setFiltroCategoria] = useState('');
-  const [filtroTamanho, setFiltroTamanho] = useState('');
-  const [filtroAcabamento, setFiltroAcabamento] = useState('');
+  const [filtroCategoria, setFiltroCategoria] = useState('Todas');
+  const [filtroTamanho, setFiltroTamanho] = useState('Todos');
+  const [filtroAcabamento, setFiltroAcabamento] = useState('Todos');
   const [ordenacao, setOrdenacao] = useState('nome');
+  const [posters, setPosters] = useState<{
+    id: string
+    nome: string
+    preco: number
+    precoOriginal: number | null
+    desconto: number | null
+    avaliacao: number
+    parcelamento: string
+    descricao: string
+    imagem: string
+    tamanhos: string[]
+    acabamento: string[]
+    categoria: string
+  }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchPosters = async () => {
+      try {
+        const response = await fetch('/api/products?category=Posters&limit=50')
+        if (!response.ok) {
+          throw new Error('Erro ao buscar posters')
+        }
+        const data: ProductsResponse = await response.json()
+        
+        // Converter dados da API para o formato esperado
+        const postersConvertidos = data.products.map(product => ({
+          id: product.id,
+          nome: product.name,
+          preco: product.price,
+          precoOriginal: Math.random() > 0.5 ? product.price * 1.3 : null,
+          desconto: Math.random() > 0.5 ? Math.floor(Math.random() * 30) + 10 : null,
+          avaliacao: Math.round((Math.random() * 1.5 + 3.5) * 10) / 10,
+          parcelamento: `${Math.ceil(product.price / 20)}x de R$ ${(product.price / Math.ceil(product.price / 20)).toFixed(2)}`,
+          descricao: product.description || 'Descrição não disponível',
+          imagem: product.image || '/produtos/placeholder.jpg',
+          tamanhos: ['A4 (21x30cm)', 'A3 (30x42cm)', 'A2 (42x59cm)'],
+          acabamento: ['Papel Fotográfico', 'Canvas'],
+          categoria: Math.random() > 0.5 ? 'arte-original' : 'politico'
+        }))
+        
+        setPosters(postersConvertidos)
+      } catch (err) {
+        console.error('Erro ao buscar posters:', err)
+        setError('Erro ao carregar posters.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchPosters()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center py-12">
+            <p className="text-lg text-gray-600">Carregando pôsteres...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center py-12">
+            <p className="text-lg text-red-600">{error}</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const postersFiltrados = posters
     .filter(poster => {
-      const categoriaMatch = !filtroCategoria || poster.categoria === filtroCategoria;
-      const tamanhoMatch = !filtroTamanho || poster.tamanhos.includes(filtroTamanho);
-      const acabamentoMatch = !filtroAcabamento || poster.acabamento.includes(filtroAcabamento);
+      const categoriaMatch = filtroCategoria === 'Todas' || poster.categoria === filtroCategoria;
+      const tamanhoMatch = filtroTamanho === 'Todos' || poster.tamanhos.includes(filtroTamanho);
+      const acabamentoMatch = filtroAcabamento === 'Todos' || poster.acabamento.includes(filtroAcabamento);
       return categoriaMatch && tamanhoMatch && acabamentoMatch;
     })
     .sort((a, b) => {
@@ -156,6 +160,7 @@ export default function PostersPage() {
                 value={filtroCategoria}
                 onChange={(e) => setFiltroCategoria(e.target.value)}
                 className="w-full bg-white text-gray-900 rounded-lg px-3 py-2 border border-gray-300 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
+                aria-label="Filtrar por categoria"
               >
                 <option value="">Todas as categorias</option>
                 <option value="arte-original">Arte Original</option>
@@ -170,6 +175,7 @@ export default function PostersPage() {
                 value={filtroTamanho}
                 onChange={(e) => setFiltroTamanho(e.target.value)}
                 className="w-full bg-white text-gray-900 rounded-lg px-3 py-2 border border-gray-300 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
+                aria-label="Filtrar por tamanho"
               >
                 <option value="">Todos os tamanhos</option>
                 <option value="A4 (21x30cm)">A4 (21x30cm)</option>
@@ -184,6 +190,7 @@ export default function PostersPage() {
                 value={filtroAcabamento}
                 onChange={(e) => setFiltroAcabamento(e.target.value)}
                 className="w-full bg-white text-gray-900 rounded-lg px-3 py-2 border border-gray-300 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
+                aria-label="Filtrar por acabamento"
               >
                 <option value="">Todos os acabamentos</option>
                 <option value="Papel Fotográfico">Papel Fotográfico</option>
@@ -198,6 +205,7 @@ export default function PostersPage() {
                 value={ordenacao}
                 onChange={(e) => setOrdenacao(e.target.value)}
                 className="w-full bg-white text-gray-900 rounded-lg px-3 py-2 border border-gray-300 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
+                aria-label="Ordenar produtos"
               >
                 <option value="nome">Nome</option>
                 <option value="preco-asc">Menor preço</option>

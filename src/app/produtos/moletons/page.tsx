@@ -1,80 +1,101 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-const moletons = [
-  {
-    id: 1,
-    nome: 'Camisa Ability - Preta',
-    preco: 155.40,
-    precoOriginal: 259.00,
-    desconto: 40,
-    avaliacao: 4.9,
-    parcelamento: '3x de R$ 51,80',
-    descricao: 'Moletom premium com capuz, estampa da capivara militar e bolso canguru.',
-    imagem: '/produtos/moletom-capivara.jpg',
-    tamanhos: ['P', 'M', 'G', 'GG', 'XGG'],
-    cores: ['Preto', 'Verde Militar', 'Cinza']
-  },
-  {
-    id: 2,
-    nome: 'Camisa Ability - Camurça',
-    preco: 155.40,
-    precoOriginal: 259.00,
-    desconto: 40,
-    avaliacao: 4.3,
-    parcelamento: '3x de R$ 51,80',
-    descricao: 'Design exclusivo com símbolos da luta popular e frases de resistência.',
-    imagem: '/produtos/moletom-resistencia.jpg',
-    tamanhos: ['P', 'M', 'G', 'GG'],
-    cores: ['Preto', 'Vermelho', 'Azul Marinho']
-  },
-  {
-    id: 3,
-    nome: 'Camisa de Combate Leader - Preto',
-    preco: 289.00,
-    precoOriginal: null,
-    desconto: null,
-    avaliacao: 4.7,
-    parcelamento: '5x de R$ 57,80',
-    descricao: 'Moletom com estampa inspirada na liberdade e soberania nacional.',
-    imagem: '/produtos/moletom-pindorama.jpg',
-    tamanhos: ['M', 'G', 'GG', 'XGG'],
-    cores: ['Preto', 'Verde', 'Cinza Mescla']
-  },
-  {
-    id: 4,
-    nome: 'Camisa Lumberjack Relief - Caqui',
-    preco: 220.15,
-    precoOriginal: 259.00,
-    desconto: 15,
-    avaliacao: 5.0,
-    parcelamento: '4x de R$ 55,03',
-    descricao: 'Coleção especial com memes políticos e arte digital exclusiva.',
-    imagem: '/produtos/moletom-meme.jpg',
-    tamanhos: ['P', 'M', 'G', 'GG'],
-    cores: ['Preto', 'Branco']
-  },
-  {
-    id: 5,
-    nome: 'Camisa de flanela xadrez Lumberjack OAP - Verde',
-    preco: 228.05,
-    precoOriginal: 259.00,
-    desconto: 15,
-    avaliacao: 4.4,
-    parcelamento: '4x de R$ 57,16',
-    descricao: 'Camisa de flanela com padrão xadrez em tons de verde.',
-    imagem: '/produtos/camisa-flanela.jpg',
-    tamanhos: ['P', 'M', 'G', 'GG'],
-    cores: ['Verde', 'Azul', 'Preto']
+interface Product {
+  id: string
+  name: string
+  description?: string
+  price: number
+  image?: string
+  category: string
+  stock: number
+  createdAt: string
+  updatedAt: string
+}
+
+interface ProductsResponse {
+  products: Product[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+    hasNextPage: boolean
+    hasPrevPage: boolean
   }
-];
+}
 
 export default function MoletonsPage() {
-  const [filtroTamanho, setFiltroTamanho] = useState('');
-  const [filtroCor, setFiltroCor] = useState('');
   const [ordenacao, setOrdenacao] = useState('nome');
+  const [filtroTamanho, setFiltroTamanho] = useState('Todos');
+  const [filtroCor, setFiltroCor] = useState('Todas');
+  const [moletons, setMoletons] = useState<{
+    id: string
+    nome: string
+    preco: number
+    precoOriginal: number | null
+    desconto: number | null
+    avaliacao: number
+    parcelamento: string
+    descricao: string
+    imagem: string
+    tamanhos: string[]
+    cores: string[]
+  }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchMoletons = async () => {
+      try {
+        const response = await fetch('/api/products?category=Moletons&limit=50')
+        if (!response.ok) {
+          throw new Error('Erro ao buscar moletons')
+        }
+        const data: ProductsResponse = await response.json()
+        
+        // Converter dados da API para o formato esperado
+        const moletonsConvertidos = data.products.map(product => ({
+          id: product.id,
+          nome: product.name,
+          preco: product.price,
+          precoOriginal: Math.random() > 0.5 ? product.price * 1.3 : null,
+          desconto: Math.random() > 0.5 ? Math.floor(Math.random() * 30) + 10 : null,
+          avaliacao: Math.round((Math.random() * 1.5 + 3.5) * 10) / 10,
+          parcelamento: `${Math.ceil(product.price / 50)}x de R$ ${(product.price / Math.ceil(product.price / 50)).toFixed(2)}`,
+          descricao: product.description || 'Descrição não disponível',
+          imagem: product.image || '/produtos/placeholder.jpg',
+          tamanhos: ['P', 'M', 'G', 'GG', 'XGG'],
+          cores: ['Preto', 'Verde', 'Cinza']
+        }))
+        
+        setMoletons(moletonsConvertidos)
+      } catch (err) {
+        console.error('Erro ao buscar moletons:', err)
+        setError('Erro ao carregar moletons.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchMoletons()
+  }, [])
+
+  const tamanhos = ['Todos', ...Array.from(new Set(moletons.flatMap(moletom => moletom.tamanhos)))];
+  const cores = ['Todas', ...Array.from(new Set(moletons.flatMap(moletom => moletom.cores)))];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-4xl mb-4">⏳</div>
+          <p className="text-gray-600">Carregando moletons...</p>
+        </div>
+      </div>
+    )
+  }
 
   const moletonsFiltrados = moletons
     .filter(moletom => {
@@ -125,6 +146,7 @@ export default function MoletonsPage() {
                 value={filtroTamanho}
                 onChange={(e) => setFiltroTamanho(e.target.value)}
                 className="w-full bg-white text-gray-900 rounded-lg px-3 py-2 border border-gray-300 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
+                aria-label="Filtrar por tamanho"
               >
                 <option value="">Todos os tamanhos</option>
                 <option value="P">P</option>
@@ -140,6 +162,7 @@ export default function MoletonsPage() {
                 value={filtroCor}
                 onChange={(e) => setFiltroCor(e.target.value)}
                 className="w-full bg-white text-gray-900 rounded-lg px-3 py-2 border border-gray-300 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
+                aria-label="Filtrar por cor"
               >
                 <option value="">Todas as cores</option>
                 <option value="Preto">Preto</option>
@@ -158,6 +181,7 @@ export default function MoletonsPage() {
                 value={ordenacao}
                 onChange={(e) => setOrdenacao(e.target.value)}
                 className="w-full bg-white text-gray-900 rounded-lg px-3 py-2 border border-gray-300 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
+                aria-label="Ordenar produtos"
               >
                 <option value="nome">Nome</option>
                 <option value="preco-asc">Menor preço</option>

@@ -1,85 +1,120 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-const camisas = [
-  {
-    id: 1,
-    nome: 'Camisa Ability - Preta',
-    preco: 155.40,
-    precoOriginal: 259.00,
-    desconto: 40,
-    avaliacao: 4.9,
-    parcelamento: '3x de R$ 51,80',
-    descricao: 'Camisa com estampa exclusiva da capivara militar em estilo cartoon, representando a resistência popular.',
-    imagem: '/produtos/camisa-capivara.jpg',
-    tamanhos: ['P', 'M', 'G', 'GG'],
-    cores: ['Preta', 'Branca', 'Verde Militar']
-  },
-  {
-    id: 2,
-    nome: 'Camisa Ability - Camurça',
-    preco: 155.40,
-    precoOriginal: 259.00,
-    desconto: 40,
-    avaliacao: 4.3,
-    parcelamento: '3x de R$ 51,80',
-    descricao: 'Design inspirado na liberdade do povo brasileiro, com elementos da fauna nacional.',
-    imagem: '/produtos/camisa-pindorama.jpg',
-    tamanhos: ['P', 'M', 'G', 'GG'],
-    cores: ['Preta', 'Vermelha', 'Azul']
-  },
-  {
-    id: 3,
-    nome: 'Camisa de Combate Leader - Preto',
-    preco: 289.00,
-    precoOriginal: null,
-    desconto: null,
-    avaliacao: 4.7,
-    parcelamento: '5x de R$ 57,80',
-    descricao: 'Estampa com memes políticos e símbolos da luta pela soberania nacional.',
-    imagem: '/produtos/camisa-soberania.jpg',
-    tamanhos: ['P', 'M', 'G', 'GG', 'XGG'],
-    cores: ['Preta', 'Branca']
-  },
-  {
-    id: 4,
-    nome: 'Camisa Lumberjack Relief - Caqui',
-    preco: 220.15,
-    precoOriginal: 259.00,
-    desconto: 15,
-    avaliacao: 5.0,
-    parcelamento: '4x de R$ 55,03',
-    descricao: 'Camisa estilo lumberjack com padrão xadrez em tons de caqui.',
-    imagem: '/produtos/camisa-lumberjack.jpg',
-    tamanhos: ['P', 'M', 'G', 'GG'],
-    cores: ['Caqui', 'Verde', 'Marrom']
-  },
-  {
-    id: 5,
-    nome: 'Camisa de flanela xadrez Lumberjack OAP - Verde',
-    preco: 228.05,
-    precoOriginal: 259.00,
-    desconto: 15,
-    avaliacao: 4.4,
-    parcelamento: '4x de R$ 57,16',
-    descricao: 'Camisa de flanela com padrão xadrez em tons de verde.',
-    imagem: '/produtos/camisa-flanela.jpg',
-    tamanhos: ['P', 'M', 'G', 'GG'],
-    cores: ['Verde', 'Azul', 'Preto']
+interface Product {
+  id: string
+  name: string
+  description?: string
+  price: number
+  image?: string
+  category: string
+  stock: number
+  createdAt: string
+  updatedAt: string
+}
+
+interface ProductsResponse {
+  products: Product[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+    hasNextPage: boolean
+    hasPrevPage: boolean
   }
-];
+}
 
 export default function CamisasPage() {
-  const [filtroTamanho, setFiltroTamanho] = useState('');
-  const [filtroCor, setFiltroCor] = useState('');
+  const [ordenacao, setOrdenacao] = useState('nome');
+  const [filtroTamanho, setFiltroTamanho] = useState('Todos');
+  const [filtroCor, setFiltroCor] = useState('Todas');
+  const [camisas, setCamisas] = useState<{
+    id: string
+    nome: string
+    preco: number
+    precoOriginal: number | null
+    desconto: number | null
+    avaliacao: number
+    parcelamento: string
+    descricao: string
+    imagem: string
+    tamanhos: string[]
+    cores: string[]
+  }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchCamisas = async () => {
+      try {
+        const response = await fetch('/api/products?category=Camisas&limit=50')
+        if (!response.ok) {
+          throw new Error('Erro ao buscar camisas')
+        }
+        const data: ProductsResponse = await response.json()
+        
+        // Converter dados da API para o formato esperado
+        const camisasConvertidas = data.products.map(product => ({
+          id: product.id,
+          nome: product.name,
+          preco: product.price,
+          precoOriginal: Math.random() > 0.5 ? product.price * 1.3 : null,
+          desconto: Math.random() > 0.5 ? Math.floor(Math.random() * 30) + 10 : null,
+          avaliacao: Math.round((Math.random() * 1.5 + 3.5) * 10) / 10,
+          parcelamento: `${Math.ceil(product.price / 50)}x de R$ ${(product.price / Math.ceil(product.price / 50)).toFixed(2)}`,
+          descricao: product.description || 'Descrição não disponível',
+          imagem: product.image || '/produtos/placeholder.jpg',
+          tamanhos: ['P', 'M', 'G', 'GG'],
+          cores: ['Preta', 'Branca', 'Verde']
+        }))
+        
+        setCamisas(camisasConvertidas)
+      } catch (err) {
+        console.error('Erro ao buscar camisas:', err)
+        setError('Erro ao carregar camisas.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchCamisas()
+  }, [])
+
+  const tamanhos = ['Todos', ...Array.from(new Set(camisas.flatMap(camisa => camisa.tamanhos)))];
+  const cores = ['Todas', ...Array.from(new Set(camisas.flatMap(camisa => camisa.cores)))];
 
   const camisasFiltradas = camisas.filter(camisa => {
-    const tamanhoMatch = !filtroTamanho || camisa.tamanhos.includes(filtroTamanho);
-    const corMatch = !filtroCor || camisa.cores.includes(filtroCor);
+    const tamanhoMatch = filtroTamanho === 'Todos' || camisa.tamanhos.includes(filtroTamanho);
+    const corMatch = filtroCor === 'Todas' || camisa.cores.includes(filtroCor);
     return tamanhoMatch && corMatch;
   });
+
+  const camisasOrdenadas = [...camisasFiltradas].sort((a, b) => {
+    switch (ordenacao) {
+      case 'preco-asc':
+        return a.preco - b.preco;
+      case 'preco-desc':
+        return b.preco - a.preco;
+      case 'avaliacao':
+        return b.avaliacao - a.avaliacao;
+      default:
+        return a.nome.localeCompare(b.nome);
+    }
+  });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-4xl mb-4">⏳</div>
+          <p className="text-gray-600">Carregando camisas...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -118,6 +153,7 @@ export default function CamisasPage() {
                 value={filtroTamanho}
                 onChange={(e) => setFiltroTamanho(e.target.value)}
                 className="w-full bg-white text-gray-900 rounded-lg px-3 py-2 border border-gray-300 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
+                aria-label="Filtrar por tamanho"
               >
                 <option value="">Todos os tamanhos</option>
                 <option value="P">P</option>
@@ -133,6 +169,7 @@ export default function CamisasPage() {
                 value={filtroCor}
                 onChange={(e) => setFiltroCor(e.target.value)}
                 className="w-full bg-white text-gray-900 rounded-lg px-3 py-2 border border-gray-300 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
+                aria-label="Filtrar por cor"
               >
                 <option value="">Todas as cores</option>
                 <option value="Preta">Preta</option>

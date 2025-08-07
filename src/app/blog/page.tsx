@@ -2,10 +2,35 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-// Posts do blog (em uma aplicação real, isso viria de um CMS ou API)
-const blogPosts = [
+interface Post {
+  id: string
+  title: string
+  slug: string
+  summary: string
+  author: string
+  category: string
+  readTime: string
+  image?: string
+  createdAt: string
+  updatedAt: string
+}
+
+interface PostsResponse {
+  posts: Post[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+    hasNextPage: boolean
+    hasPrevPage: boolean
+  }
+}
+
+// Posts estáticos como fallback
+const postsEstaticos = [
   {
     id: 'capivara-revolucionaria',
     titulo: 'A Capivara Revolucionária: Símbolo da Resistência Brasileira',
@@ -74,13 +99,67 @@ const blogPosts = [
   }
 ];
 
-const categorias = ['Todas', 'História', 'Cultura', 'Política', 'Arte', 'Economia', 'Educação'];
-
 export default function BlogPage() {
   const [filtroCategoria, setFiltroCategoria] = useState('Todas');
   const [ordenacao, setOrdenacao] = useState('data-desc');
+  const [posts, setPosts] = useState<{
+    id: string
+    titulo: string
+    resumo: string
+    autor: string
+    data: string
+    categoria: string
+    tempoLeitura: string
+    imagem: string
+    slug: string
+  }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  // Buscar posts do banco de dados
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch('/api/blog?limit=50')
+        
+        if (!response.ok) {
+          throw new Error('Erro ao carregar posts')
+        }
+        
+        const data: PostsResponse = await response.json()
+        
+        // Converter posts do banco para o formato esperado
+        const postsConvertidos = data.posts.map(post => ({
+          id: post.id,
+          titulo: post.title,
+          resumo: post.summary,
+          autor: post.author,
+          data: new Date(post.createdAt).toISOString().split('T')[0],
+          categoria: post.category,
+          tempoLeitura: post.readTime,
+          imagem: post.image || '/blog/placeholder.jpg',
+          slug: post.slug
+        }))
+        
+        setPosts(postsConvertidos)
+      } catch (err) {
+        console.error('Erro ao buscar posts:', err)
+        setError('Erro ao carregar posts. Usando dados de exemplo.')
+        // Usar posts estáticos como fallback
+        setPosts(postsEstaticos)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchPosts()
+  }, [])
+
+  // Obter todas as categorias únicas
+  const categorias = ['Todas', ...Array.from(new Set(posts.map(post => post.categoria)))];
   
-  const postsFiltrados = blogPosts.filter(post => 
+  const postsFiltrados = posts.filter(post => 
     filtroCategoria === 'Todas' || post.categoria === filtroCategoria
   );
   
@@ -104,6 +183,17 @@ export default function BlogPage() {
       day: 'numeric'
     });
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-4xl mb-4">📚</div>
+          <p className="text-gray-600">Carregando posts...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -161,6 +251,7 @@ export default function BlogPage() {
             <select
               value={ordenacao}
               onChange={(e) => setOrdenacao(e.target.value)}
+              aria-label="Ordenar posts"
               className="w-full bg-white text-gray-900 rounded-lg px-3 py-2 border border-gray-300 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
             >
               <option value="data-desc">Mais recentes</option>
