@@ -194,6 +194,132 @@ async function main() {
   } else {
     console.log('✅ Posts de exemplo já existem')
   }
+
+  // Criar pedidos de exemplo
+  const existingOrders = await prisma.order.count()
+  if (existingOrders === 0) {
+    // Buscar usuários e produtos para criar pedidos
+    const users = await prisma.user.findMany({
+      where: { role: 'user' },
+      take: 2
+    })
+    
+    const products = await prisma.product.findMany({ take: 4 })
+    
+    if (users.length > 0 && products.length > 0) {
+      // Pedido 1 - Entregue
+      await prisma.order.create({
+        data: {
+          userId: users[0].id,
+          status: 'delivered',
+          subtotal: 189.90,
+          shipping: 15.90,
+          tax: 0,
+          total: 205.80,
+          paymentMethod: 'credit_card',
+          paymentStatus: 'paid',
+          shippingAddress: {
+            street: 'Rua das Flores, 123',
+            city: 'São Paulo',
+            state: 'SP',
+            zipCode: '01234-567',
+            country: 'Brasil'
+          },
+          trackingCode: 'BR123456789',
+          notes: 'Entrega rápida solicitada',
+          items: {
+            create: [
+              {
+                productId: products[0].id,
+                quantity: 1,
+                price: products[0].price,
+                size: 'M',
+                color: 'Azul'
+              },
+              {
+                productId: products[1].id,
+                quantity: 2,
+                price: products[1].price,
+                size: 'G',
+                color: 'Preto'
+              }
+            ]
+          }
+        }
+      })
+
+      // Pedido 2 - Em trânsito
+      await prisma.order.create({
+        data: {
+          userId: users[0].id,
+          status: 'shipped',
+          subtotal: 299.90,
+          shipping: 0,
+          tax: 0,
+          total: 299.90,
+          paymentMethod: 'pix',
+          paymentStatus: 'paid',
+          shippingAddress: {
+            street: 'Av. Paulista, 1000',
+            city: 'São Paulo',
+            state: 'SP',
+            zipCode: '01310-100',
+            country: 'Brasil'
+          },
+          trackingCode: 'BR987654321',
+          items: {
+            create: [
+              {
+                productId: products[2].id,
+                quantity: 1,
+                price: products[2].price,
+                size: 'P',
+                color: 'Verde'
+              }
+            ]
+          }
+        }
+      })
+
+      // Pedido 3 - Processando
+      if (users.length > 1) {
+        await prisma.order.create({
+          data: {
+            userId: users[1].id,
+            status: 'processing',
+            subtotal: 159.90,
+            shipping: 15.90,
+            tax: 0,
+            total: 175.80,
+            paymentMethod: 'credit_card',
+            paymentStatus: 'paid',
+            shippingAddress: {
+              street: 'Rua do Comércio, 456',
+              city: 'Rio de Janeiro',
+              state: 'RJ',
+              zipCode: '20040-020',
+              country: 'Brasil'
+            },
+            items: {
+              create: [
+                {
+                  productId: products[3].id,
+                  quantity: 1,
+                  price: products[3].price,
+                  size: 'M',
+                  color: 'Branco'
+                }
+              ]
+            }
+          }
+        })
+      }
+
+      console.log('✅ 3 pedidos de exemplo criados')
+    }
+  } else {
+    console.log('✅ Pedidos de exemplo já existem')
+  }
 }
 
 main()

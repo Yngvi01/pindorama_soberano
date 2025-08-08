@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 interface Product {
   id: string
@@ -11,6 +12,9 @@ interface Product {
   image?: string
   category: string
   stock: number
+  colors?: string[]
+  sizes?: string[]
+  specifications?: Record<string, any>
   createdAt: string
   updatedAt: string
 }
@@ -40,7 +44,6 @@ export default function AdesivosPage() {
     parcelamento: string
     descricao: string
     imagem: string
-    tamanho: string
     quantidade: number
     categoria: string
   }[]>([]);
@@ -67,7 +70,6 @@ export default function AdesivosPage() {
           parcelamento: `${Math.ceil(product.price / 15)}x de R$ ${(product.price / Math.ceil(product.price / 15)).toFixed(2)}`,
           descricao: product.description || 'Descrição não disponível',
           imagem: product.image || '/produtos/placeholder.jpg',
-          tamanho: '10x10cm',
           quantidade: Math.floor(Math.random() * 8) + 1,
           categoria: Math.random() > 0.5 ? 'pack' : 'individual'
         }))
@@ -240,9 +242,12 @@ export default function AdesivosPage() {
                   </p>
                 </div>
 
-                <button className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:shadow-md">
-                  Adicionar ao Carrinho
-                </button>
+                <Link 
+                  href={`/produtos/${adesivo.id}`}
+                  className="block w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:shadow-md text-center"
+                >
+                  Ver Produto
+                </Link>
               </div>
             </motion.div>
           ))}

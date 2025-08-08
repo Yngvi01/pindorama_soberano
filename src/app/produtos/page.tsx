@@ -12,6 +12,9 @@ interface Product {
   image?: string
   category: string
   stock: number
+  colors?: string[]
+  sizes?: string[]
+  specifications?: Record<string, any>
   createdAt: string
   updatedAt: string
 }
@@ -32,93 +35,93 @@ interface ProductsResponse {
 const produtosEstaticos = [
   // Camisas
   {
-    id: 'camisa-1',
-    nome: 'Camisa Ability - Preta',
-    preco: 155.40,
-    precoOriginal: 259.00,
-    desconto: 40,
-    avaliacao: 4.9,
-    parcelamento: '3x de R$ 51,80',
-    descricao: 'Camisa com estampa exclusiva da capivara militar em estilo cartoon.',
+    id: '68961ed2cf4cea023b42542e',
+    nome: 'Camisa Pindorama Soberano',
+    preco: 89.90,
+    precoOriginal: 120.00,
+    desconto: 25,
+    avaliacao: 4.8,
+    parcelamento: '3x de R$ 29,97',
+    descricao: 'Camisa premium com estampa exclusiva da capivara revolucionária.',
     categoria: 'Camisas',
     imagem: '/produtos/camisa-capivara.jpg'
   },
   {
-    id: 'camisa-2',
-    nome: 'Camisa Ability - Camurça',
-    preco: 155.40,
-    precoOriginal: 259.00,
-    desconto: 40,
-    avaliacao: 4.3,
-    parcelamento: '3x de R$ 51,80',
-    descricao: 'Design inspirado na liberdade do povo brasileiro.',
+    id: '68961ed2cf4cea023b42542f',
+    nome: 'Camisa Brasil Livre',
+    preco: 79.90,
+    precoOriginal: 99.90,
+    desconto: 20,
+    avaliacao: 4.6,
+    parcelamento: '3x de R$ 26,63',
+    descricao: 'Design patriótico com elementos da cultura brasileira.',
     categoria: 'Camisas',
     imagem: '/produtos/camisa-pindorama.jpg'
   },
   {
-    id: 'camisa-3',
-    nome: 'Camisa de Combate Leader - Preto',
-    preco: 289.00,
+    id: '68961ed2cf4cea023b425430',
+    nome: 'Camisa Resistência Verde',
+    preco: 85.90,
     precoOriginal: null,
     desconto: null,
-    avaliacao: 4.7,
-    parcelamento: '5x de R$ 57,80',
-    descricao: 'Camisa tática com design militar moderno.',
+    avaliacao: 4.9,
+    parcelamento: '3x de R$ 28,63',
+    descricao: 'Símbolo da luta ambiental e consciência ecológica.',
     categoria: 'Camisas',
-    imagem: '/produtos/camisa-combate.jpg'
+    imagem: '/produtos/camisa-verde.jpg'
   },
   {
-    id: 'camisa-4',
-    nome: 'Camisa Lumberjack Relief - Caqui',
-    preco: 220.15,
-    precoOriginal: 259.00,
-    desconto: 15,
-    avaliacao: 5.0,
-    parcelamento: '4x de R$ 55,03',
-    descricao: 'Estilo lenhador com toque brasileiro.',
+    id: '68961ed2cf4cea023b425431',
+    nome: 'Camisa Clássica Nacional',
+    preco: 75.90,
+    precoOriginal: 95.90,
+    desconto: 21,
+    avaliacao: 4.7,
+    parcelamento: '3x de R$ 25,30',
+    descricao: 'Design atemporal com símbolos da soberania nacional.',
     categoria: 'Camisas',
-    imagem: '/produtos/camisa-lumberjack.jpg'
+    imagem: '/produtos/camisa-classica.jpg'
   },
   // Moletons
   {
-    id: 'moletom-1',
-    nome: 'Moletom Capivara Revolucionária',
-    preco: 189.90,
-    precoOriginal: 249.90,
-    desconto: 24,
+    id: '68961ed2cf4cea023b425431',
+    nome: 'Moletom Pindorama Resistência',
+    preco: 149.90,
+    precoOriginal: 199.90,
+    desconto: 25,
     avaliacao: 4.8,
-    parcelamento: '4x de R$ 47,47',
-    descricao: 'Moletom confortável com estampa da capivara militar.',
+    parcelamento: '5x de R$ 29,98',
+    descricao: 'Moletom confortável com capuz e estampa revolucionária.',
     categoria: 'Moletons',
-    imagem: '/produtos/moletom-capivara.jpg'
+    imagem: '/produtos/moletom-resistencia.jpg'
   },
   {
-    id: 'moletom-2',
-    nome: 'Moletom Pindorama Livre',
-    preco: 179.90,
-    precoOriginal: 229.90,
-    desconto: 22,
+    id: '68961ed2cf4cea023b425432',
+    nome: 'Moletom Verde Esperança',
+    preco: 139.90,
+    precoOriginal: null,
+    desconto: null,
     avaliacao: 4.6,
-    parcelamento: '4x de R$ 44,97',
-    descricao: 'Design exclusivo celebrando a liberdade nacional.',
+    parcelamento: '4x de R$ 34,98',
+    descricao: 'Cor verde vibrante simbolizando a natureza brasileira.',
     categoria: 'Moletons',
-    imagem: '/produtos/moletom-pindorama.jpg'
+    imagem: '/produtos/moletom-verde.jpg'
   },
   // Adesivos
   {
-    id: 'adesivo-1',
-    nome: 'Pack Adesivos Capivara Militar',
-    preco: 25.90,
-    precoOriginal: 35.90,
-    desconto: 28,
+    id: '68961ed2cf4cea023b425433',
+    nome: 'Adesivo Capivara Comandante',
+    preco: 8.90,
+    precoOriginal: null,
+    desconto: null,
     avaliacao: 4.9,
-    parcelamento: '2x de R$ 12,95',
-    descricao: 'Pack com 10 adesivos da capivara em poses militares.',
+    parcelamento: 'À vista',
+    descricao: 'Adesivo resistente com a icônica capivara militar.',
     categoria: 'Adesivos',
-    imagem: '/produtos/adesivos-capivara.jpg'
+    imagem: '/produtos/adesivo-capivara.jpg'
   },
   {
-    id: 'adesivo-2',
+    id: '68961ed2cf4cea023b425434',
     nome: 'Adesivo Pindorama Soberano',
     preco: 12.90,
     precoOriginal: null,
@@ -131,7 +134,7 @@ const produtosEstaticos = [
   },
   // Posters
   {
-    id: 'poster-1',
+    id: '68961ed2cf4cea023b425435',
     nome: 'Pôster Capivara Comandante',
     preco: 45.90,
     precoOriginal: 65.90,
@@ -143,7 +146,7 @@ const produtosEstaticos = [
     imagem: '/produtos/poster-capivara.jpg'
   },
   {
-    id: 'poster-2',
+    id: '68961ed2cf4cea023b425436',
     nome: 'Pôster Revolução dos Bichos BR',
     preco: 42.90,
     precoOriginal: 59.90,
@@ -214,6 +217,8 @@ export default function ProdutosPage() {
 
     fetchProducts()
   }, [])
+
+
   
   const categorias = ['Todos', ...Array.from(new Set(produtos.map(produto => produto.categoria)))];
   
@@ -363,9 +368,12 @@ export default function ProdutosPage() {
                       ou {produto.parcelamento}
                     </div>
                   </div>
-                  <button className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:shadow-md">
-                    Adicionar ao Carrinho
-                  </button>
+                  <Link 
+                    href={`/produtos/${produto.id}`}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:shadow-md flex items-center justify-center"
+                  >
+                    Ver Produto
+                  </Link>
                 </div>
               </motion.div>
             ))}

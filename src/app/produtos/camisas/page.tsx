@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 interface Product {
   id: string
@@ -11,6 +12,9 @@ interface Product {
   image?: string
   category: string
   stock: number
+  colors?: string[]
+  sizes?: string[]
+  specifications?: Record<string, any>
   createdAt: string
   updatedAt: string
 }
@@ -232,9 +236,12 @@ export default function CamisasPage() {
                   </p>
                 </div>
 
-                <button className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:shadow-md">
-                  Adicionar ao Carrinho
-                </button>
+                <Link 
+                  href={`/produtos/${camisa.id}`}
+                  className="block w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:shadow-md text-center"
+                >
+                  Ver Produto
+                </Link>
               </div>
             </motion.div>
           ))}

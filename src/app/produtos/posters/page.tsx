@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 interface Product {
   id: string
@@ -11,6 +12,9 @@ interface Product {
   image?: string
   category: string
   stock: number
+  colors?: string[]
+  sizes?: string[]
+  specifications?: Record<string, any>
   createdAt: string
   updatedAt: string
 }
@@ -29,7 +33,6 @@ interface ProductsResponse {
 
 export default function PostersPage() {
   const [filtroCategoria, setFiltroCategoria] = useState('Todas');
-  const [filtroTamanho, setFiltroTamanho] = useState('Todos');
   const [filtroAcabamento, setFiltroAcabamento] = useState('Todos');
   const [ordenacao, setOrdenacao] = useState('nome');
   const [posters, setPosters] = useState<{
@@ -42,7 +45,6 @@ export default function PostersPage() {
     parcelamento: string
     descricao: string
     imagem: string
-    tamanhos: string[]
     acabamento: string[]
     categoria: string
   }[]>([]);
@@ -69,7 +71,6 @@ export default function PostersPage() {
           parcelamento: `${Math.ceil(product.price / 20)}x de R$ ${(product.price / Math.ceil(product.price / 20)).toFixed(2)}`,
           descricao: product.description || 'Descrição não disponível',
           imagem: product.image || '/produtos/placeholder.jpg',
-          tamanhos: ['A4 (21x30cm)', 'A3 (30x42cm)', 'A2 (42x59cm)'],
           acabamento: ['Papel Fotográfico', 'Canvas'],
           categoria: Math.random() > 0.5 ? 'arte-original' : 'politico'
         }))
@@ -113,9 +114,8 @@ export default function PostersPage() {
   const postersFiltrados = posters
     .filter(poster => {
       const categoriaMatch = filtroCategoria === 'Todas' || poster.categoria === filtroCategoria;
-      const tamanhoMatch = filtroTamanho === 'Todos' || poster.tamanhos.includes(filtroTamanho);
       const acabamentoMatch = filtroAcabamento === 'Todos' || poster.acabamento.includes(filtroAcabamento);
-      return categoriaMatch && tamanhoMatch && acabamentoMatch;
+      return categoriaMatch && acabamentoMatch;
     })
     .sort((a, b) => {
       if (ordenacao === 'preco-asc') return a.preco - b.preco;
@@ -169,21 +169,7 @@ export default function PostersPage() {
                 <option value="edicao-limitada">Edição Limitada</option>
               </select>
             </div>
-            <div>
-              <label className="block text-gray-700 font-medium text-sm mb-2">Tamanho</label>
-              <select
-                value={filtroTamanho}
-                onChange={(e) => setFiltroTamanho(e.target.value)}
-                className="w-full bg-white text-gray-900 rounded-lg px-3 py-2 border border-gray-300 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
-                aria-label="Filtrar por tamanho"
-              >
-                <option value="">Todos os tamanhos</option>
-                <option value="A4 (21x30cm)">A4 (21x30cm)</option>
-                <option value="A3 (30x42cm)">A3 (30x42cm)</option>
-                <option value="A2 (42x59cm)">A2 (42x59cm)</option>
-                <option value="A1 (59x84cm)">A1 (59x84cm)</option>
-              </select>
-            </div>
+
             <div>
               <label className="block text-gray-700 font-medium text-sm mb-2">Acabamento</label>
               <select
@@ -260,9 +246,12 @@ export default function PostersPage() {
                   </div>
                 </div>
 
-                <button className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:shadow-md">
-                  Adicionar ao Carrinho
-                </button>
+                <Link 
+                  href={`/produtos/${poster.id}`}
+                  className="block w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:shadow-md text-center"
+                >
+                  Ver Produto
+                </Link>
               </div>
             </motion.div>
           ))}

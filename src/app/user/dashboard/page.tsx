@@ -1,11 +1,13 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { Calendar, Clock, User, Mail, Shield } from 'lucide-react'
+import { Calendar, Clock, User, Mail, Shield, ShoppingBag } from 'lucide-react'
 import Link from 'next/link'
+import { useCart } from '@/contexts/CartContext'
 
 export default function UserDashboard() {
   const { data: session } = useSession()
+  const { itemCount } = useCart()
 
   if (!session) return null
 
@@ -129,11 +131,32 @@ export default function UserDashboard() {
               <div className="text-sm text-green-600">Atualize suas informações pessoais</div>
             </a>
             <Link
-              href="/user/settings"
+              href="/user/orders"
               className="block w-full text-left px-4 py-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors"
             >
+              <div className="font-medium">Meus Pedidos</div>
+              <div className="text-sm text-blue-600">Acompanhe seus pedidos</div>
+            </Link>
+            <Link
+              href="/user/cart"
+              className="block w-full text-left px-4 py-3 bg-orange-50 text-orange-700 rounded-lg hover:bg-orange-100 transition-colors"
+            >
+              <div className="font-medium flex items-center justify-between">
+                <span>Meu Carrinho</span>
+                {itemCount > 0 && (
+                  <span className="bg-orange-200 text-orange-800 text-xs px-2 py-1 rounded-full">
+                    {itemCount} {itemCount === 1 ? 'item' : 'itens'}
+                  </span>
+                )}
+              </div>
+              <div className="text-sm text-orange-600">Finalize suas compras</div>
+            </Link>
+            <Link
+              href="/user/settings"
+              className="block w-full text-left px-4 py-3 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors"
+            >
               <div className="font-medium">Configurações</div>
-              <div className="text-sm text-blue-600">Gerencie suas preferências</div>
+              <div className="text-sm text-purple-600">Gerencie suas preferências</div>
             </Link>
             <Link
               href="/"

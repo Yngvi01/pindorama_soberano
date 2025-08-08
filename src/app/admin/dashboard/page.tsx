@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import { 
   Users, 
   Package, 
@@ -28,6 +29,7 @@ interface DashboardStats {
 
 export default function AdminDashboard() {
   const { data: session } = useSession()
+  const router = useRouter()
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -206,19 +208,31 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Ações Rápidas</h2>
           <div className="grid grid-cols-2 gap-4">
-            <button className="flex flex-col items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+            <button 
+              onClick={() => router.push('/admin/users')}
+              className="flex flex-col items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+            >
               <Users className="h-8 w-8 text-blue-600 mb-2" />
               <span className="text-sm font-medium text-blue-900">Gerenciar Usuários</span>
             </button>
-            <button className="flex flex-col items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+            <button 
+              onClick={() => router.push('/admin/products/create')}
+              className="flex flex-col items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+            >
               <Package className="h-8 w-8 text-green-600 mb-2" />
               <span className="text-sm font-medium text-green-900">Adicionar Produto</span>
             </button>
-            <button className="flex flex-col items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
+            <button 
+              onClick={() => router.push('/admin/blog/create')}
+              className="flex flex-col items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
+            >
               <FileText className="h-8 w-8 text-purple-600 mb-2" />
               <span className="text-sm font-medium text-purple-900">Novo Post</span>
             </button>
-            <button className="flex flex-col items-center p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors">
+            <button 
+              onClick={() => window.open('/', '_blank')}
+              className="flex flex-col items-center p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors"
+            >
               <Eye className="h-8 w-8 text-orange-600 mb-2" />
               <span className="text-sm font-medium text-orange-900">Ver Site</span>
             </button>

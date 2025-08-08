@@ -11,6 +11,7 @@ const createProductSchema = z.object({
   category: z.string().min(1, 'Categoria é obrigatória'),
   stock: z.number().int().min(0, 'Estoque não pode ser negativo').default(0),
   active: z.boolean().default(true),
+  specifications: z.record(z.string(), z.any()).optional(),
 })
 
 // GET - Listar todos os produtos

@@ -3,6 +3,7 @@ import { ReactNode } from 'react'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import SessionWrapper from '../components/SessionWrapper'
+import { CartProvider } from '../contexts/CartContext'
 
 export const metadata = {
   title: 'Pindorama Soberano — Em Breve',
@@ -15,9 +16,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="pt-BR">
       <body className="flex flex-col min-h-screen">
         <SessionWrapper>
-          <Navbar/>
-          <main className="flex-grow">{children}</main>
-          <Footer/>
+          <CartProvider>
+            <Navbar/>
+            <main className="flex-grow">{children}</main>
+            <Footer/>
+          </CartProvider>
         </SessionWrapper>
       </body>
     </html>

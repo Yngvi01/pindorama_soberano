@@ -14,7 +14,8 @@ export default function CreateProductPage() {
     image: '',
     category: '',
     stock: '0',
-    active: true
+    active: true,
+    specifications: '{}'
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,7 +31,8 @@ export default function CreateProductPage() {
         body: JSON.stringify({
           ...formData,
           price: parseFloat(formData.price),
-          stock: parseInt(formData.stock)
+          stock: parseInt(formData.stock),
+          specifications: formData.specifications ? JSON.parse(formData.specifications) : {}
         }),
       })
 
@@ -150,6 +152,24 @@ export default function CreateProductPage() {
               rows={4}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
             />
+          </div>
+
+          <div>
+            <label htmlFor="specifications" className="block text-sm font-medium text-gray-700 mb-2">
+              Especificações (JSON)
+            </label>
+            <textarea
+              id="specifications"
+              name="specifications"
+              value={formData.specifications}
+              onChange={handleChange}
+              rows={6}
+              placeholder='{"material": "Algodão", "tamanho": "M", "cor": "Azul"}'
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 font-mono text-sm"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Digite as especificações em formato JSON. Exemplo: {'{"material": "Algodão", "peso": "200g"}'}
+            </p>
           </div>
 
           <div>

@@ -13,6 +13,9 @@ interface Product {
   category: string | null
   stock: number
   active: boolean
+  colors?: string[]
+  sizes?: string[]
+  specifications?: Record<string, any>
   createdAt: string
   updatedAt: string
 }

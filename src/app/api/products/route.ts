@@ -45,6 +45,9 @@ export async function GET(request: NextRequest) {
           image: true,
           category: true,
           stock: true,
+          colors: true,
+          sizes: true,
+          specifications: true,
           createdAt: true,
           updatedAt: true
         }
