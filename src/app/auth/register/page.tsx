@@ -64,7 +64,7 @@ export default function RegisterPage() {
           router.push('/auth/login')
         }, 2000)
       }
-    } catch (error) {
+    } catch {
       setError('Erro interno do servidor')
     } finally {
       setIsLoading(false)

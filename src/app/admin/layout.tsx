@@ -16,6 +16,18 @@ import {
   Shield
 } from 'lucide-react'
 
+interface ExtendedUser {
+  id: string
+  email: string
+  name?: string | null
+  image?: string | null
+  role?: string
+}
+
+interface ExtendedSession {
+  user: ExtendedUser
+}
+
 interface AdminLayoutProps {
   children: React.ReactNode
 }
@@ -33,7 +45,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       return
     }
 
-    if (session.user?.role?.toLowerCase() !== 'admin') {
+    if ((session as ExtendedSession)?.user?.role?.toLowerCase() !== 'admin') {
       router.push('/user/dashboard')
       return
     }
@@ -51,7 +63,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     )
   }
 
-  if (!session || session.user.role !== 'admin') {
+  if (!session || (session as ExtendedSession)?.user?.role?.toLowerCase() !== 'admin') {
     return null
   }
 

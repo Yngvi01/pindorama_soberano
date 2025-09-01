@@ -8,9 +8,9 @@ const updateCartItemSchema = z.object({
 })
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     itemId: string
-  }
+  }>
 }
 
 // PATCH - Atualizar quantidade do item no carrinho
@@ -28,7 +28,7 @@ export async function PATCH(
       )
     }
 
-    const { itemId } = params
+    const { itemId } = await params
     const body = await request.json()
     const { quantity } = updateCartItemSchema.parse(body)
 
@@ -128,7 +128,7 @@ export async function DELETE(
       )
     }
 
-    const { itemId } = params
+    const { itemId } = await params
 
     // Buscar o item do carrinho
     const cartItem = await prisma.cartItem.findUnique({

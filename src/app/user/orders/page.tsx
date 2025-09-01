@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 import { Package, Clock, CheckCircle, Truck, XCircle, Eye } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 interface OrderItem {
   id: string
@@ -236,9 +237,11 @@ export default function UserOrdersPage() {
                     {order.items.slice(0, 3).map((item) => (
                       <div key={item.id} className="flex items-center space-x-3">
                         {item.product.image && (
-                          <img
+                          <Image
                             src={item.product.image}
                             alt={item.product.name}
+                            width={48}
+                            height={48}
                             className="h-12 w-12 object-cover rounded-lg"
                           />
                         )}

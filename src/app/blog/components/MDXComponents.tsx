@@ -1,5 +1,7 @@
 import { ReactNode } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { ExternalLink, Quote, Code, ImageIcon } from 'lucide-react';
 
 interface MDXComponentsProps {
   children?: ReactNode;
@@ -14,24 +16,33 @@ interface MDXComponentsProps {
 const MDXComponents = {
   // Headings
   h1: ({ children, ...props }: MDXComponentsProps) => (
-    <h1
-      className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight"
-      {...props}
-    >
-      {children}
-    </h1>
+    <div className="relative mb-8">
+      <h1
+        className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 via-green-800 to-blue-800 bg-clip-text text-transparent mb-4 leading-tight"
+        {...props}
+      >
+        {children}
+      </h1>
+      <div className="h-1 w-20 bg-gradient-to-r from-green-500 to-blue-500 rounded-full"></div>
+    </div>
   ),
   
   h2: ({ children, ...props }: MDXComponentsProps) => (
-    <h2 className="text-3xl font-bold text-gray-900 mb-4 mt-8 leading-tight" {...props}>
-      {children}
-    </h2>
+    <div className="relative mt-12 mb-6">
+      <h2 className="text-3xl font-bold text-gray-900 mb-3 leading-tight flex items-center" {...props}>
+        <span className="w-2 h-8 bg-gradient-to-b from-green-500 to-blue-500 rounded-full mr-4"></span>
+        {children}
+      </h2>
+    </div>
   ),
   
   h3: ({ children, ...props }: MDXComponentsProps) => (
-    <h3 className="text-2xl font-bold text-gray-900 mb-3 mt-6 leading-tight" {...props}>
-      {children}
-    </h3>
+    <div className="relative mt-8 mb-4">
+      <h3 className="text-2xl font-bold text-gray-900 leading-tight flex items-center" {...props}>
+        <span className="w-1.5 h-6 bg-gradient-to-b from-green-400 to-blue-400 rounded-full mr-3"></span>
+        {children}
+      </h3>
+    </div>
   ),
   
   h4: ({ children, ...props }: MDXComponentsProps) => (
@@ -42,7 +53,7 @@ const MDXComponents = {
   
   // Paragraphs
   p: ({ children, ...props }: MDXComponentsProps) => (
-    <p className="text-gray-700 leading-relaxed mb-4 text-lg" {...props}>
+    <p className="text-gray-700 leading-relaxed mb-6 text-lg font-light tracking-wide" {...props}>
       {children}
     </p>
   ),
@@ -57,10 +68,11 @@ const MDXComponents = {
           href={href}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-green-600 hover:text-green-700 font-medium underline decoration-green-300 hover:decoration-green-500 transition-colors"
+          className="inline-flex items-center text-green-600 hover:text-green-700 font-medium bg-green-50 hover:bg-green-100 px-2 py-1 rounded-md transition-all duration-300 border-b-2 border-green-200 hover:border-green-400"
           {...props}
         >
           {children}
+          <ExternalLink className="w-3 h-3 ml-1" />
         </a>
       );
     }
@@ -68,7 +80,7 @@ const MDXComponents = {
     return (
       <Link
         href={href || '#'}
-        className="text-green-600 hover:text-green-700 font-medium underline decoration-green-300 hover:decoration-green-500 transition-colors"
+        className="text-green-600 hover:text-green-700 font-medium bg-green-50 hover:bg-green-100 px-2 py-1 rounded-md transition-all duration-300 border-b-2 border-green-200 hover:border-green-400"
         {...props}
       >
         {children}
@@ -97,39 +109,61 @@ const MDXComponents = {
   
   // Blockquotes
   blockquote: ({ children, ...props }: MDXComponentsProps) => (
-    <blockquote className="border-l-4 border-green-500 pl-6 py-2 my-6 bg-green-50 rounded-r-lg" {...props}>
-      <div className="text-gray-700 italic text-lg">
-        {children}
-      </div>
-    </blockquote>
+    <div className="relative my-8">
+      <blockquote className="relative bg-gradient-to-r from-green-50 to-blue-50 border-l-4 border-gradient-to-b from-green-500 to-blue-500 pl-8 pr-6 py-6 rounded-r-2xl shadow-sm" {...props}>
+        <Quote className="absolute top-4 left-2 w-5 h-5 text-green-500 opacity-60" />
+        <div className="text-gray-700 italic text-lg font-medium leading-relaxed">
+          {children}
+        </div>
+        <div className="absolute bottom-2 right-4 w-8 h-1 bg-gradient-to-r from-green-400 to-blue-400 rounded-full"></div>
+      </blockquote>
+    </div>
   ),
   
   // Code
   code: ({ children, ...props }: MDXComponentsProps) => (
-    <code className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-sm font-mono" {...props}>
+    <code className="inline-flex items-center bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-lg text-sm font-mono border border-gray-200 transition-colors duration-200" {...props}>
+      <Code className="w-3 h-3 mr-1 text-gray-500" />
       {children}
     </code>
   ),
   
   pre: ({ children, ...props }: MDXComponentsProps) => (
-    <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-4 text-sm" {...props}>
-      {children}
-    </pre>
+    <div className="relative my-6">
+      <pre className="bg-gradient-to-br from-gray-900 to-gray-800 text-gray-100 p-6 rounded-xl overflow-x-auto shadow-lg border border-gray-700" {...props}>
+        <div className="absolute top-3 right-3 flex gap-1">
+          <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+          <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+        </div>
+        {children}
+      </pre>
+    </div>
   ),
   
   // Images
   img: ({ src, alt, ...props }: MDXComponentsProps) => (
-    <div className="my-8">
-      <img
-        src={src}
-        alt={alt}
-        className="w-full rounded-lg shadow-lg"
-        {...props}
-      />
+    <div className="relative my-10 group">
+      <div className="relative overflow-hidden rounded-2xl shadow-2xl bg-gradient-to-br from-gray-100 to-gray-200">
+        <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <Image
+          src={src || ''}
+          alt={alt || ''}
+          className="w-full transition-transform duration-500 group-hover:scale-105"
+          width={800}
+          height={400}
+          {...props}
+        />
+        <div className="absolute top-4 right-4 bg-white/80 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <ImageIcon className="w-4 h-4 text-gray-600" />
+        </div>
+      </div>
       {alt && (
-        <p className="text-center text-gray-500 text-sm mt-2 italic">
-          {alt}
-        </p>
+        <div className="mt-4 text-center">
+          <p className="text-gray-600 text-sm italic bg-gray-50 inline-block px-4 py-2 rounded-full border border-gray-200">
+            {alt}
+          </p>
+        </div>
       )}
     </div>
   ),

@@ -10,9 +10,7 @@ const addToCartSchema = z.object({
   color: z.string().optional(),
 })
 
-const updateCartItemSchema = z.object({
-  quantity: z.number().min(0),
-})
+
 
 // GET - Buscar carrinho do usuário
 export async function GET() {

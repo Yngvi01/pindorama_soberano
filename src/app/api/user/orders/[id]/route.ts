@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth()
@@ -28,10 +28,12 @@ export async function GET(
       )
     }
 
+    const { id } = await params
+
     // Buscar o pedido específico do usuário
     const order = await prisma.order.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: user.id // Garantir que o pedido pertence ao usuário
       },
       include: {
@@ -70,7 +72,7 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth()
@@ -94,13 +96,14 @@ export async function PATCH(
       )
     }
 
+    const { id } = await params
     const body = await request.json()
     const { action } = body
 
     // Verificar se o pedido existe e pertence ao usuário
     const existingOrder = await prisma.order.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: user.id
       },
       include: {
@@ -126,7 +129,7 @@ export async function PATCH(
 
       // Cancelar o pedido
       const updatedOrder = await prisma.order.update({
-        where: { id: params.id },
+        where: { id: id },
         data: {
           status: 'cancelled',
           updatedAt: new Date()

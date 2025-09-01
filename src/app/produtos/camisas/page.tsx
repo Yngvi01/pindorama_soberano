@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface Product {
   id: string
@@ -14,7 +15,7 @@ interface Product {
   stock: number
   colors?: string[]
   sizes?: string[]
-  specifications?: Record<string, any>
+  specifications?: Record<string, string | number | boolean>
   createdAt: string
   updatedAt: string
 }
@@ -32,7 +33,6 @@ interface ProductsResponse {
 }
 
 export default function CamisasPage() {
-  const [ordenacao, setOrdenacao] = useState('nome');
   const [filtroTamanho, setFiltroTamanho] = useState('Todos');
   const [filtroCor, setFiltroCor] = useState('Todas');
   const [camisas, setCamisas] = useState<{
@@ -49,7 +49,7 @@ export default function CamisasPage() {
     cores: string[]
   }[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCamisas = async () => {
@@ -87,27 +87,13 @@ export default function CamisasPage() {
     fetchCamisas()
   }, [])
 
-  const tamanhos = ['Todos', ...Array.from(new Set(camisas.flatMap(camisa => camisa.tamanhos)))];
-  const cores = ['Todas', ...Array.from(new Set(camisas.flatMap(camisa => camisa.cores)))];
-
   const camisasFiltradas = camisas.filter(camisa => {
     const tamanhoMatch = filtroTamanho === 'Todos' || camisa.tamanhos.includes(filtroTamanho);
     const corMatch = filtroCor === 'Todas' || camisa.cores.includes(filtroCor);
     return tamanhoMatch && corMatch;
   });
 
-  const camisasOrdenadas = [...camisasFiltradas].sort((a, b) => {
-    switch (ordenacao) {
-      case 'preco-asc':
-        return a.preco - b.preco;
-      case 'preco-desc':
-        return b.preco - a.preco;
-      case 'avaliacao':
-        return b.avaliacao - a.avaliacao;
-      default:
-        return a.nome.localeCompare(b.nome);
-    }
-  });
+
 
   if (loading) {
     return (
@@ -187,15 +173,15 @@ export default function CamisasPage() {
         </motion.div>
 
         {/* Grid de Produtos */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {camisasFiltradas.map((camisa, index) => (
-            <motion.div
-              key={camisa.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group overflow-hidden border border-gray-100 relative"
-            >
+            <Link href={`/produtos/${camisa.id}`} key={camisa.id}>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.05 }}
+                className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group overflow-hidden border border-gray-100 cursor-pointer"
+              >
               {/* Badge de desconto */}
               {camisa.desconto && (
                 <div className="absolute top-3 left-3 bg-orange-500 text-white px-2 py-1 rounded-md text-sm font-bold z-10">
@@ -209,18 +195,24 @@ export default function CamisasPage() {
                 <span className="text-sm font-medium text-gray-700">{camisa.avaliacao}</span>
               </div>
 
-              <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center relative overflow-hidden">
-                <div className="text-8xl opacity-80 group-hover:scale-110 transition-transform duration-300">👕</div>
+              <div className="aspect-[4/5] bg-gray-100 relative overflow-hidden">
+                <Image
+                  src={camisa.imagem}
+                  alt={camisa.nome}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                />
               </div>
               <div className="p-4">
-                <h3 className="text-base font-medium text-gray-900 mb-3 line-clamp-2">
+                <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-green-600 transition-colors">
                   {camisa.nome}
                 </h3>
                 
-                <div className="space-y-2 mb-4">
+                <div className="mb-3">
                   {/* Preços */}
                   <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-gray-900">
+                    <span className="text-xl font-bold text-green-600">
                       R$ {camisa.preco.toFixed(2).replace('.', ',')}
                     </span>
                     {camisa.precoOriginal && (
@@ -236,14 +228,11 @@ export default function CamisasPage() {
                   </p>
                 </div>
 
-                <Link 
-                  href={`/produtos/${camisa.id}`}
-                  className="block w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:shadow-md text-center"
-                >
-                  Ver Produto
-                </Link>
+
+
               </div>
-            </motion.div>
+              </motion.div>
+            </Link>
           ))}
         </div>
 

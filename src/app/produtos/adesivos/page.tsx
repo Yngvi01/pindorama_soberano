@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface Product {
   id: string
@@ -14,7 +15,7 @@ interface Product {
   stock: number
   colors?: string[]
   sizes?: string[]
-  specifications?: Record<string, any>
+  specifications?: Record<string, string | number | boolean>
   createdAt: string
   updatedAt: string
 }
@@ -193,63 +194,39 @@ export default function AdesivosPage() {
         </motion.div>
 
         {/* Grid de Produtos */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {adesivosOrdenados.map((adesivo, index) => (
-            <motion.div
-              key={adesivo.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group overflow-hidden border border-gray-100 relative"
-            >
-              {/* Badge de desconto */}
-              {adesivo.desconto && (
-                <div className="absolute top-3 left-3 bg-orange-500 text-white px-2 py-1 rounded-md text-sm font-bold z-10">
-                  {adesivo.desconto}% OFF
-                </div>
-              )}
-              
-              {/* Avaliação */}
-              <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md flex items-center gap-1 z-10">
-                <span className="text-yellow-400 text-sm">★</span>
-                <span className="text-sm font-medium text-gray-700">{adesivo.avaliacao}</span>
-              </div>
-
-              <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center relative overflow-hidden">
-                <div className="text-6xl opacity-80 group-hover:scale-110 transition-transform duration-300">🏷️</div>
+            <Link href={`/produtos/${adesivo.id}`} key={adesivo.id}>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.05 }}
+                className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group overflow-hidden border border-gray-100 cursor-pointer"
+              >
+              <div className="aspect-[4/5] bg-gray-100 relative overflow-hidden">
+                <Image
+                  src={adesivo.imagem}
+                  alt={adesivo.nome}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                />
               </div>
               <div className="p-4">
-                <h3 className="text-base font-medium text-gray-900 mb-3 line-clamp-2">
+                <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-green-600 transition-colors">
                   {adesivo.nome}
                 </h3>
                 
-                <div className="space-y-2 mb-4">
+                <div className="mb-3">
                   {/* Preços */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-gray-900">
-                      R$ {adesivo.preco.toFixed(2).replace('.', ',')}
-                    </span>
-                    {adesivo.precoOriginal && (
-                      <span className="text-sm text-gray-500 line-through">
-                        R$ {adesivo.precoOriginal.toFixed(2).replace('.', ',')}
-                      </span>
-                    )}
-                  </div>
-                  
-                  {/* Parcelamento */}
-                  <p className="text-sm text-gray-600">
-                    ou {adesivo.parcelamento}
-                  </p>
+                  <span className="text-xl font-bold text-green-600">
+                    R$ {adesivo.preco.toFixed(2).replace('.', ',')}
+                  </span>
                 </div>
 
-                <Link 
-                  href={`/produtos/${adesivo.id}`}
-                  className="block w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:shadow-md text-center"
-                >
-                  Ver Produto
-                </Link>
               </div>
-            </motion.div>
+              </motion.div>
+            </Link>
           ))}
         </div>
 

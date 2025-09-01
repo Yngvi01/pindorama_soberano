@@ -1,10 +1,11 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
-import { Package, Clock, CheckCircle, Truck, XCircle, ArrowLeft, MapPin, CreditCard, Calendar } from 'lucide-react'
+import { useEffect, useState, useCallback } from 'react'
+import { useParams } from 'next/navigation'
+import { Package, Clock, CheckCircle, Truck, XCircle, ArrowLeft, MapPin, CreditCard } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 interface OrderItem {
   id: string
@@ -93,31 +94,31 @@ const statusConfig = {
 export default function OrderDetailsPage() {
   const { data: session } = useSession()
   const params = useParams()
-  const router = useRouter()
   const [order, setOrder] = useState<Order | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (session?.user && params.id) {
-      fetchOrder()
-    }
-  }, [session, params.id])
-
-  const fetchOrder = async () => {
+  const fetchOrder = useCallback(async () => {
     try {
       const response = await fetch(`/api/user/orders/${params.id}`)
       if (response.ok) {
         const data = await response.json()
         setOrder(data)
-      } else if (response.status === 404) {
-        router.push('/user/orders')
+      } else {
+        setError('Erro ao carregar pedido')
       }
-    } catch (error) {
-      console.error('Erro ao carregar pedido:', error)
+    } catch {
+      setError('Erro ao carregar pedido')
     } finally {
       setLoading(false)
     }
-  }
+  }, [params.id])
+
+  useEffect(() => {
+    if (session?.user && params.id) {
+      fetchOrder()
+    }
+  }, [session, params.id, fetchOrder])
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -155,6 +156,21 @@ export default function OrderDetailsPage() {
         <div className="bg-white rounded-lg shadow p-6 animate-pulse">
           <div className="h-32 bg-gray-200 rounded"></div>
         </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-600">{error}</p>
+        <Link
+          href="/user/orders"
+          className="inline-flex items-center mt-4 text-green-600 hover:text-green-700"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Voltar aos pedidos
+        </Link>
       </div>
     )
   }
@@ -255,9 +271,11 @@ export default function OrderDetailsPage() {
           {order.items.map((item) => (
             <div key={item.id} className="flex items-center space-x-4 p-4 border rounded-lg">
               {item.product.image && (
-                <img
+                <Image
                   src={item.product.image}
                   alt={item.product.name}
+                  width={64}
+                  height={64}
                   className="h-16 w-16 object-cover rounded-lg"
                 />
               )}

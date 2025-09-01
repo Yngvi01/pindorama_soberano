@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { Calendar, Clock, User, Mail, Shield, ShoppingBag } from 'lucide-react'
+import { Calendar, Clock, User, Mail, Shield } from 'lucide-react'
 import Link from 'next/link'
 import { useCart } from '@/contexts/CartContext'
 
@@ -11,13 +11,7 @@ export default function UserDashboard() {
 
   if (!session) return null
 
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('pt-BR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
-  }
+
 
   return (
     <div className="space-y-6">

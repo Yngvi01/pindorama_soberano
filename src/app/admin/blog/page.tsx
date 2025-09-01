@@ -1,8 +1,21 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
+
+interface ExtendedUser {
+  id: string
+  email: string
+  name?: string | null
+  image?: string | null
+  role?: string
+}
+
+interface ExtendedSession {
+  user: ExtendedUser
+}
 
 interface Post {
   id: string
@@ -33,27 +46,7 @@ export default function AdminBlogPage() {
   const [categories, setCategories] = useState<string[]>([])
 
   // Verificar se é admin
-  useEffect(() => {
-    if (status === 'loading') return
-    
-    if (!session || session.user?.role !== 'admin') {
-      router.push('/admin/dashboard')
-    }
-  }, [session, status, router])
-
-  useEffect(() => {
-    fetchPosts()
-  }, [currentPage, searchTerm, selectedCategory, selectedStatus])
-
-  if (status === 'loading') {
-    return <div className="flex justify-center items-center min-h-screen">Carregando...</div>
-  }
-
-  if (!session || session.user?.role !== 'admin') {
-    return null
-  }
-
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     try {
       setLoading(true)
       const params = new URLSearchParams({
@@ -79,6 +72,26 @@ export default function AdminBlogPage() {
     } finally {
       setLoading(false)
     }
+  }, [currentPage, searchTerm, selectedCategory, selectedStatus])
+
+  useEffect(() => {
+    if (status === 'loading') return
+    
+    if (!session || (session as ExtendedSession)?.user?.role?.toLowerCase() !== 'admin') {
+      router.push('/admin/dashboard')
+    }
+  }, [session, status, router])
+
+  useEffect(() => {
+    fetchPosts()
+  }, [fetchPosts, currentPage, searchTerm, selectedCategory, selectedStatus])
+
+  if (status === 'loading') {
+    return <div className="flex justify-center items-center min-h-screen">Carregando...</div>
+  }
+
+  if (!session || (session as ExtendedSession)?.user?.role?.toLowerCase() !== 'admin') {
+    return null
   }
 
   const togglePublished = async (postId: string, currentStatus: boolean) => {
@@ -258,10 +271,12 @@ export default function AdminBlogPage() {
                   <td className="px-6 py-4">
                     <div className="flex items-center">
                       {post.image && (
-                        <img
+                        <Image
                           className="h-10 w-10 rounded-lg object-cover mr-4"
                           src={post.image}
                           alt={post.title}
+                          width={40}
+                          height={40}
                         />
                       )}
                       <div>

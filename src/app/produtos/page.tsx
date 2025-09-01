@@ -2,7 +2,9 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 
 interface Product {
   id: string
@@ -14,7 +16,7 @@ interface Product {
   stock: number
   colors?: string[]
   sizes?: string[]
-  specifications?: Record<string, any>
+  specifications?: Record<string, string | number | boolean>
   createdAt: string
   updatedAt: string
 }
@@ -31,136 +33,26 @@ interface ProductsResponse {
   }
 }
 
-// Produtos estáticos como fallback
-const produtosEstaticos = [
-  // Camisas
-  {
-    id: '68961ed2cf4cea023b42542e',
-    nome: 'Camisa Pindorama Soberano',
-    preco: 89.90,
-    precoOriginal: 120.00,
-    desconto: 25,
-    avaliacao: 4.8,
-    parcelamento: '3x de R$ 29,97',
-    descricao: 'Camisa premium com estampa exclusiva da capivara revolucionária.',
-    categoria: 'Camisas',
-    imagem: '/produtos/camisa-capivara.jpg'
-  },
-  {
-    id: '68961ed2cf4cea023b42542f',
-    nome: 'Camisa Brasil Livre',
-    preco: 79.90,
-    precoOriginal: 99.90,
-    desconto: 20,
-    avaliacao: 4.6,
-    parcelamento: '3x de R$ 26,63',
-    descricao: 'Design patriótico com elementos da cultura brasileira.',
-    categoria: 'Camisas',
-    imagem: '/produtos/camisa-pindorama.jpg'
-  },
-  {
-    id: '68961ed2cf4cea023b425430',
-    nome: 'Camisa Resistência Verde',
-    preco: 85.90,
-    precoOriginal: null,
-    desconto: null,
-    avaliacao: 4.9,
-    parcelamento: '3x de R$ 28,63',
-    descricao: 'Símbolo da luta ambiental e consciência ecológica.',
-    categoria: 'Camisas',
-    imagem: '/produtos/camisa-verde.jpg'
-  },
-  {
-    id: '68961ed2cf4cea023b425431',
-    nome: 'Camisa Clássica Nacional',
-    preco: 75.90,
-    precoOriginal: 95.90,
-    desconto: 21,
-    avaliacao: 4.7,
-    parcelamento: '3x de R$ 25,30',
-    descricao: 'Design atemporal com símbolos da soberania nacional.',
-    categoria: 'Camisas',
-    imagem: '/produtos/camisa-classica.jpg'
-  },
-  // Moletons
-  {
-    id: '68961ed2cf4cea023b425431',
-    nome: 'Moletom Pindorama Resistência',
-    preco: 149.90,
-    precoOriginal: 199.90,
-    desconto: 25,
-    avaliacao: 4.8,
-    parcelamento: '5x de R$ 29,98',
-    descricao: 'Moletom confortável com capuz e estampa revolucionária.',
-    categoria: 'Moletons',
-    imagem: '/produtos/moletom-resistencia.jpg'
-  },
-  {
-    id: '68961ed2cf4cea023b425432',
-    nome: 'Moletom Verde Esperança',
-    preco: 139.90,
-    precoOriginal: null,
-    desconto: null,
-    avaliacao: 4.6,
-    parcelamento: '4x de R$ 34,98',
-    descricao: 'Cor verde vibrante simbolizando a natureza brasileira.',
-    categoria: 'Moletons',
-    imagem: '/produtos/moletom-verde.jpg'
-  },
-  // Adesivos
-  {
-    id: '68961ed2cf4cea023b425433',
-    nome: 'Adesivo Capivara Comandante',
-    preco: 8.90,
-    precoOriginal: null,
-    desconto: null,
-    avaliacao: 4.9,
-    parcelamento: 'À vista',
-    descricao: 'Adesivo resistente com a icônica capivara militar.',
-    categoria: 'Adesivos',
-    imagem: '/produtos/adesivo-capivara.jpg'
-  },
-  {
-    id: '68961ed2cf4cea023b425434',
-    nome: 'Adesivo Pindorama Soberano',
-    preco: 12.90,
-    precoOriginal: null,
-    desconto: null,
-    avaliacao: 4.7,
-    parcelamento: 'À vista',
-    descricao: 'Adesivo premium com logo do Pindorama Soberano.',
-    categoria: 'Adesivos',
-    imagem: '/produtos/adesivo-logo.jpg'
-  },
-  // Posters
-  {
-    id: '68961ed2cf4cea023b425435',
-    nome: 'Pôster Capivara Comandante',
-    preco: 45.90,
-    precoOriginal: 65.90,
-    desconto: 30,
-    avaliacao: 4.8,
-    parcelamento: '3x de R$ 15,30',
-    descricao: 'Arte exclusiva da capivara militar em pose heroica.',
-    categoria: 'Posters',
-    imagem: '/produtos/poster-capivara.jpg'
-  },
-  {
-    id: '68961ed2cf4cea023b425436',
-    nome: 'Pôster Revolução dos Bichos BR',
-    preco: 42.90,
-    precoOriginal: 59.90,
-    desconto: 28,
-    avaliacao: 4.6,
-    parcelamento: '3x de R$ 14,30',
-    descricao: 'Releitura brasileira do clássico com fauna nacional.',
-    categoria: 'Posters',
-    imagem: '/produtos/poster-revolucao.jpg'
-  }
-];
 
-export default function ProdutosPage() {
-  const [filtroCategoria, setFiltroCategoria] = useState('Todos');
+
+function ProdutosPageContent() {
+  const searchParams = useSearchParams();
+  const categoriaParam = searchParams.get('categoria');
+  
+  // Mapear categorias da URL para categorias do sistema
+  const mapearCategoria = (categoria: string | null) => {
+    if (!categoria) return 'Todos';
+    
+    const mapeamento: { [key: string]: string } = {
+      'camisetas': 'Camisas',
+      'moletons': 'Moletons', 
+      'adesivos': 'Adesivos'
+    };
+    
+    return mapeamento[categoria.toLowerCase()] || 'Todos';
+  };
+  
+  const [filtroCategoria, setFiltroCategoria] = useState(() => mapearCategoria(categoriaParam));
   const [ordenacao, setOrdenacao] = useState('nome');
   const [produtos, setProdutos] = useState<{
     id: string
@@ -173,9 +65,11 @@ export default function ProdutosPage() {
     descricao: string
     categoria: string
     imagem: string
+    tamanhos: string[]
+    cores: string[]
   }[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   // Buscar produtos do banco de dados
   useEffect(() => {
@@ -201,15 +95,16 @@ export default function ProdutosPage() {
           parcelamento: `3x de R$ ${(product.price / 3).toFixed(2)}`,
           descricao: product.description || 'Produto de qualidade',
           categoria: product.category,
-          imagem: product.image || '/produtos/placeholder.jpg'
+          imagem: product.image || '/produtos/placeholder.jpg',
+          tamanhos: product.category === 'Camisas' || product.category === 'Moletons' ? (product.sizes || ['P', 'M', 'G', 'GG']) : [],
+          cores: product.category === 'Camisas' || product.category === 'Moletons' ? (product.colors || ['Preta', 'Branca', 'Verde']) : []
         }))
         
         setProdutos(produtosConvertidos)
       } catch (err) {
         console.error('Erro ao buscar produtos:', err)
-        setError('Erro ao carregar produtos. Usando dados de exemplo.')
-        // Usar produtos estáticos como fallback
-        setProdutos(produtosEstaticos)
+        setError('Erro ao carregar produtos do banco de dados.')
+        setProdutos([])
       } finally {
         setLoading(false)
       }
@@ -218,8 +113,12 @@ export default function ProdutosPage() {
     fetchProducts()
   }, [])
 
+  // Atualizar filtro quando parâmetros da URL mudarem
+  useEffect(() => {
+    const novaCategoria = mapearCategoria(categoriaParam);
+    setFiltroCategoria(novaCategoria);
+  }, [categoriaParam]);
 
-  
   const categorias = ['Todos', ...Array.from(new Set(produtos.map(produto => produto.categoria)))];
   
   const produtosFiltrados = produtos.filter(produto => 
@@ -251,9 +150,156 @@ export default function ProdutosPage() {
   }
   return (
     <div className="min-h-screen bg-white">
+      {/* Hero Section para Categorias Específicas */}
+      {filtroCategoria === 'Camisas' && (
+        <div className="relative h-96 overflow-hidden" style={{background: 'linear-gradient(to right, #3b82f6, #4f46e5)'}}>
+          <div className="relative container mx-auto px-4 h-full flex items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+              className="text-white max-w-2xl"
+            >
+              <h1 className="text-5xl font-bold mb-4">Camisas Exclusivas</h1>
+              <p className="text-xl mb-6">Descubra nossa coleção de camisas com designs únicos e qualidade premium</p>
+              <div className="flex flex-wrap items-center gap-3">
+                 <div className="bg-white bg-opacity-90 px-4 py-2 rounded-full backdrop-blur-sm">
+                   <span className="text-sm font-medium text-gray-800">✨ Designs Únicos</span>
+                 </div>
+                 <div className="bg-white bg-opacity-90 px-4 py-2 rounded-full backdrop-blur-sm">
+                   <span className="text-sm font-medium text-gray-800">🎨 Alta Qualidade</span>
+                 </div>
+               </div>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="absolute right-10 top-1/2 transform -translate-y-1/2"
+            >
+              <div className="w-64 h-64 bg-white bg-opacity-10 rounded-full flex items-center justify-center">
+                <span className="text-8xl">👕</span>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      )}
 
+      {filtroCategoria === 'Moletons' && (
+         <div className="relative h-96 overflow-hidden" style={{background: 'linear-gradient(to right, #10b981, #0d9488)'}}>
+          <div className="relative container mx-auto px-4 h-full flex items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+              className="text-white max-w-2xl"
+            >
+              <h1 className="text-5xl font-bold mb-4">Moletons Confortáveis</h1>
+              <p className="text-xl mb-6">Conforto e estilo em cada peça. Perfeitos para qualquer ocasião</p>
+              <div className="flex flex-wrap items-center gap-3">
+                 <div className="bg-white bg-opacity-90 px-4 py-2 rounded-full backdrop-blur-sm">
+                   <span className="text-sm font-medium text-gray-800">🔥 Super Confortáveis</span>
+                 </div>
+                 <div className="bg-white bg-opacity-90 px-4 py-2 rounded-full backdrop-blur-sm">
+                   <span className="text-sm font-medium text-gray-800">❄️ Para Todas as Estações</span>
+                 </div>
+               </div>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="absolute right-10 top-1/2 transform -translate-y-1/2"
+            >
+              <div className="w-64 h-64 bg-white bg-opacity-10 rounded-full flex items-center justify-center">
+                <span className="text-8xl">🧥</span>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      )}
 
+      {filtroCategoria === 'Adesivos' && (
+         <div className="relative h-96 overflow-hidden" style={{background: 'linear-gradient(to right, #8b5cf6, #ec4899)'}}>
+          <div className="relative container mx-auto px-4 h-full flex items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+              className="text-white max-w-2xl"
+            >
+              <h1 className="text-5xl font-bold mb-4">Adesivos Criativos</h1>
+              <p className="text-xl mb-6">Personalize seu mundo com nossos adesivos únicos e resistentes</p>
+              <div className="flex flex-wrap items-center gap-3">
+                 <div className="bg-white bg-opacity-90 px-4 py-2 rounded-full backdrop-blur-sm">
+                   <span className="text-sm font-medium text-gray-800">🎨 Designs Exclusivos</span>
+                 </div>
+                 <div className="bg-white bg-opacity-90 px-4 py-2 rounded-full backdrop-blur-sm">
+                   <span className="text-sm font-medium text-gray-800">💪 Alta Durabilidade</span>
+                 </div>
+               </div>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="absolute right-10 top-1/2 transform -translate-y-1/2"
+            >
+              <div className="w-64 h-64 bg-white bg-opacity-10 rounded-full flex items-center justify-center">
+                <span className="text-8xl">🏷️</span>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      )}
 
+      {/* Hero Section para Todos os Produtos */}
+      {filtroCategoria === 'Todos' && (
+        <div className="relative h-96 overflow-hidden" style={{background: 'linear-gradient(to right, #f97316, #dc2626)'}}>
+          <div className="relative container mx-auto px-4 h-full flex items-center">
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="text-white max-w-3xl mx-auto text-center"
+            >
+              <h1 className="text-6xl font-bold mb-6">Todos os Produtos</h1>
+              <p className="text-2xl mb-8">Explore nossa coleção completa de produtos exclusivos e únicos</p>
+              <div className="flex flex-wrap justify-center items-center gap-4">
+                <div className="bg-white bg-opacity-90 px-4 py-2 rounded-full backdrop-blur-sm">
+                  <span className="text-sm font-medium text-gray-800">🎨 Design Exclusivo</span>
+                </div>
+                <div className="bg-white bg-opacity-90 px-4 py-2 rounded-full backdrop-blur-sm">
+                  <span className="text-sm font-medium text-gray-800">⚡ Entrega Rápida</span>
+                </div>
+                <div className="bg-white bg-opacity-90 px-4 py-2 rounded-full backdrop-blur-sm">
+                  <span className="text-sm font-medium text-gray-800">💎 Qualidade Premium</span>
+                </div>
+              </div>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1, delay: 0.3 }}
+              className="absolute top-10 right-10"
+            >
+              <div className="w-32 h-32 bg-white bg-opacity-10 rounded-full flex items-center justify-center">
+                <span className="text-5xl">🛍️</span>
+              </div>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1, delay: 0.5 }}
+              className="absolute bottom-10 left-10"
+            >
+              <div className="w-24 h-24 bg-white bg-opacity-10 rounded-full flex items-center justify-center">
+                <span className="text-3xl">✨</span>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      )}
 
       {/* Seção Todos os Produtos */}
       <div className="bg-gray-50 py-16">
@@ -265,74 +311,81 @@ export default function ProdutosPage() {
             className="text-center mb-12"
           >
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Todos os Produtos
+              {filtroCategoria === 'Todos' ? 'Todos os Produtos' : filtroCategoria}
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Explore nossa coleção completa de produtos exclusivos
+              {filtroCategoria === 'Todos' 
+                ? 'Explore nossa coleção completa de produtos exclusivos'
+                : `Confira nossa seleção de ${filtroCategoria.toLowerCase()}`
+              }
             </p>
           </motion.div>
 
-          {/* Filtros e Ordenação */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="flex flex-col md:flex-row gap-4 mb-8 bg-white p-6 rounded-2xl shadow-sm"
-          >
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Filtrar por categoria:
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {categorias.map(categoria => (
-                  <button
-                    key={categoria}
-                    onClick={() => setFiltroCategoria(categoria)}
-                    className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                      filtroCategoria === categoria
-                        ? 'bg-green-600 text-white shadow-md'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    {categoria}
-                  </button>
-                ))}
+          {/* Filtros e Ordenação - Só mostrar quando for "Todos" */}
+          {filtroCategoria === 'Todos' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="flex flex-col md:flex-row gap-4 mb-8 bg-white p-6 rounded-2xl shadow-sm"
+            >
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Filtrar por categoria:
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {categorias.map(categoria => (
+                    <button
+                      key={categoria}
+                      onClick={() => setFiltroCategoria(categoria)}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                        filtroCategoria === categoria
+                          ? 'bg-green-600 text-white shadow-md'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      {categoria}
+                    </button>
+                  ))}
               </div>
             </div>
             <div className="md:w-64">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Ordenar por:
-              </label>
-              <select
-                value={ordenacao}
-                onChange={(e) => setOrdenacao(e.target.value)}
-                aria-label="Ordenar produtos"
-                className="w-full bg-white text-gray-900 rounded-lg px-3 py-2 border border-gray-300 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
-              >
-                <option value="nome">Nome</option>
-                <option value="preco-asc">Menor preço</option>
-                <option value="preco-desc">Maior preço</option>
-                <option value="avaliacao">Melhor avaliação</option>
-              </select>
-            </div>
-          </motion.div>
+                 Ordenar por:
+               </label>
+               <select
+                 value={ordenacao}
+                 onChange={(e) => setOrdenacao(e.target.value)}
+                 aria-label="Ordenar produtos"
+                 className="w-full bg-white text-gray-900 rounded-lg px-3 py-2 border border-gray-300 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
+               >
+                 <option value="nome">Nome</option>
+                 <option value="preco-asc">Menor preço</option>
+                 <option value="preco-desc">Maior preço</option>
+                 <option value="avaliacao">Melhor avaliação</option>
+               </select>
+             </div>
+           </motion.div>
+           )}
 
           {/* Grid de Todos os Produtos */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {produtosOrdenados.map((produto, index) => (
-              <motion.div
-                key={produto.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.05 }}
-                className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group overflow-hidden border border-gray-100"
-              >
-                <div className="aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center relative overflow-hidden">
-                  <div className="text-8xl opacity-80 group-hover:scale-110 transition-transform duration-300">
-                    {produto.categoria === 'Camisas' ? '👕' : 
-                     produto.categoria === 'Moletons' ? '🧥' :
-                     produto.categoria === 'Adesivos' ? '🏷️' : '🖼️'}
-                  </div>
+              <Link href={`/produtos/${produto.id}`} key={produto.id}>
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.05 }}
+                  className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group overflow-hidden border border-gray-100 cursor-pointer"
+                >
+                <div className="aspect-[4/5] bg-gray-100 relative overflow-hidden">
+                  <Image
+                    src={produto.imagem}
+                    alt={produto.nome}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                  />
                   {produto.desconto && (
                     <div className="absolute top-3 left-3 bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold">
                       {produto.desconto}% OFF
@@ -346,36 +399,34 @@ export default function ProdutosPage() {
                     {produto.categoria}
                   </div>
                 </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-green-600 transition-colors">
+                <div className="p-4">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-green-600 transition-colors">
                     {produto.nome}
                   </h3>
-                  <p className="text-gray-600 text-sm mb-4 leading-relaxed">
+                  <p className="text-gray-600 text-sm mb-3 leading-relaxed">
                     {produto.descricao}
                   </p>
-                  <div className="mb-4">
+                  <div className="mb-3">
                     {produto.precoOriginal && (
                       <div className="text-sm text-gray-500 line-through mb-1">
                         R$ {produto.precoOriginal.toFixed(2).replace('.', ',')}
                       </div>
                     )}
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-2xl font-bold text-green-600">
+                      <span className="text-xl font-bold text-green-600">
                         R$ {produto.preco.toFixed(2).replace('.', ',')}
                       </span>
                     </div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-gray-500">
                       ou {produto.parcelamento}
                     </div>
-                  </div>
-                  <Link 
-                    href={`/produtos/${produto.id}`}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:shadow-md flex items-center justify-center"
-                  >
-                    Ver Produto
-                  </Link>
                 </div>
-              </motion.div>
+                
+
+                
+                </div>
+                </motion.div>
+              </Link>
             ))}
           </div>
 
@@ -417,5 +468,20 @@ export default function ProdutosPage() {
         </motion.div>
       </div>
     </div>
+  );
+}
+
+export default function ProdutosPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-4xl mb-4">⏳</div>
+          <p className="text-gray-600">Carregando produtos...</p>
+        </div>
+      </div>
+    }>
+      <ProdutosPageContent />
+    </Suspense>
   );
 }

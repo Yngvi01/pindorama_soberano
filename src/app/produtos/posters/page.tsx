@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface Product {
   id: string
@@ -14,7 +15,7 @@ interface Product {
   stock: number
   colors?: string[]
   sizes?: string[]
-  specifications?: Record<string, any>
+  specifications?: Record<string, string | number | boolean>
   createdAt: string
   updatedAt: string
 }
@@ -202,17 +203,23 @@ export default function PostersPage() {
         </motion.div>
 
         {/* Grid de Produtos */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {postersFiltrados.map((poster, index) => (
-            <motion.div
-              key={poster.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 group overflow-hidden border border-gray-100"
-            >
-              <div className="aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center relative overflow-hidden">
-                <div className="text-8xl opacity-80 group-hover:scale-110 transition-transform duration-300">🖼️</div>
+            <Link href={`/produtos/${poster.id}`} key={poster.id}>
+              <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.05 }}
+                  className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group overflow-hidden border border-gray-100 cursor-pointer"
+                >
+                <div className="aspect-[4/5] bg-gray-100 relative overflow-hidden">
+                  <Image
+                    src={poster.imagem}
+                    alt={poster.nome}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                  />
                 {poster.desconto && (
                   <div className="absolute top-3 left-3 bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold">
                     {poster.desconto}% OFF
@@ -223,21 +230,21 @@ export default function PostersPage() {
                   <span className="text-gray-700">{poster.avaliacao}</span>
                 </div>
               </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-green-600 transition-colors">
+              <div className="p-4">
+                <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-green-600 transition-colors">
                   {poster.nome}
                 </h3>
-                <p className="text-gray-600 text-sm mb-4 leading-relaxed">
+                <p className="text-gray-600 text-sm mb-3 leading-relaxed">
                   {poster.descricao}
                 </p>
-                <div className="mb-4">
+                <div className="mb-3">
                   {poster.precoOriginal && (
                     <div className="text-sm text-gray-500 line-through mb-1">
                       R$ {poster.precoOriginal.toFixed(2).replace('.', ',')}
                     </div>
                   )}
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-2xl font-bold text-green-600">
+                    <span className="text-xl font-bold text-green-600">
                       R$ {poster.preco.toFixed(2).replace('.', ',')}
                     </span>
                   </div>
@@ -246,14 +253,9 @@ export default function PostersPage() {
                   </div>
                 </div>
 
-                <Link 
-                  href={`/produtos/${poster.id}`}
-                  className="block w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:shadow-md text-center"
-                >
-                  Ver Produto
-                </Link>
               </div>
-            </motion.div>
+              </motion.div>
+            </Link>
           ))}
         </div>
 

@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
-import Image from 'next/image'
+import { useEffect, useState, useRef, useMemo } from 'react'
 import { motion } from 'framer-motion'
 
 // Componente de partículas animadas
@@ -240,7 +239,7 @@ const SocialIcons = () => {
 }
 
 export default function Page() {
-  const LAUNCH = new Date('2025-10-10T00:00:00Z') // Data de lançamento - ajuste conforme necessário
+  const LAUNCH = useMemo(() => new Date('2025-10-10T00:00:00Z'), []) // Data de lançamento - ajuste conforme necessário
 
   // Inicializa com valores zero para evitar erro de hidratação
   const [timeValues, setTimeValues] = useState({ d: 0, h: 0, m: 0, s: 0 })
@@ -269,7 +268,7 @@ export default function Page() {
     // Configura o intervalo
     const interval = setInterval(updateCountdown, 1000)
     return () => clearInterval(interval)
-  }, [])
+  }, [LAUNCH])
 
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<'idle'|'loading'|'ok'|'error'>('idle')

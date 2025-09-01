@@ -51,7 +51,7 @@ export default function LoginPage() {
           router.push('/user/dashboard')
         }
       }
-    } catch (error) {
+    } catch {
       setError('Erro interno do servidor')
     } finally {
       setIsLoading(false)

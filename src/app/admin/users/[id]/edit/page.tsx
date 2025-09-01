@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Save, User } from 'lucide-react'
 
@@ -37,9 +37,9 @@ export default function EditUserPage({ params }: EditUserPageProps) {
       fetchUser(resolvedParams.id)
     }
     getParams()
-  }, [params])
+  }, [params, fetchUser])
 
-  const fetchUser = async (id: string) => {
+  const fetchUser = useCallback(async (id: string) => {
     try {
       const response = await fetch(`/api/admin/users/${id}`)
       if (response.ok) {
@@ -60,7 +60,7 @@ export default function EditUserPage({ params }: EditUserPageProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

@@ -19,42 +19,12 @@ interface Product {
   stock: number
   colors?: string[]
   sizes?: string[]
-  specifications?: Record<string, any>
+  specifications?: Record<string, string | number | boolean>
   createdAt: string
   updatedAt: string
 }
 
-// Dados estáticos como fallback
-const produtoEstatico = {
-  id: '68961ed2cf4cea023b42542e',
-  nome: 'Bermuda Veteran - Camuflado Digital Desert',
-  preco: 279.00,
-  precoOriginal: 350.00,
-  desconto: 20,
-  avaliacao: 4.7,
-  parcelamento: '5x de R$ 55,80',
-  descricao: 'Bermuda tática de alta qualidade com camuflagem digital desert. Confeccionada em tecido resistente e durável, ideal para atividades outdoor e uso casual. Possui múltiplos bolsos funcionais e ajuste confortável.',
-  categoria: 'Bermudas',
-  imagens: [
-    '/produtos/bermuda-desert-1.jpg',
-    '/produtos/bermuda-desert-2.jpg',
-    '/produtos/bermuda-desert-3.jpg'
-  ],
-  tamanhos: ['38', '40', '42', '44', '46', '48', '50'],
-  cores: [
-    { nome: 'Caqui', codigo: '#8B7355' },
-    { nome: 'Preto', codigo: '#000000' }
-  ],
-  especificacoes: [
-    'Material: 65% Algodão, 35% Poliéster',
-    'Camuflagem digital desert',
-    '6 bolsos funcionais',
-    'Cós com elástico lateral',
-    'Resistente à água',
-    'Secagem rápida'
-  ],
-  estoque: 25
-};
+
 
 export default function ProdutoPage() {
   const params = useParams();
@@ -62,7 +32,7 @@ export default function ProdutoPage() {
   const { data: session } = useSession();
   const { addToCart } = useCart();
   
-  const [produto, setProduto] = useState(produtoEstatico);
+  const [produto, setProduto] = useState(null);
   const [loading, setLoading] = useState(true);
   const [imagemAtiva, setImagemAtiva] = useState(0);
   const [tamanhoSelecionado, setTamanhoSelecionado] = useState('');
@@ -84,21 +54,31 @@ export default function ProdutoPage() {
           const isAdesivoPoster = data.category.toLowerCase().includes('adesivo') || data.category.toLowerCase().includes('poster');
           
           setProduto({
-            ...produtoEstatico,
             id: data.id,
             nome: data.name,
             preco: data.price,
-            descricao: data.description || produtoEstatico.descricao,
+            precoOriginal: null,
+            desconto: null,
+            avaliacao: 4.5,
+            parcelamento: `3x de R$ ${(data.price / 3).toFixed(2)}`,
+            descricao: data.description || 'Produto de qualidade',
             categoria: data.category,
+            imagens: data.image ? [data.image] : ['/produtos/placeholder.jpg'],
             estoque: data.stock,
             // Adesivos e posters não devem ter tamanho e cor
-            tamanhos: isAdesivoPoster ? [] : (data.sizes || produtoEstatico.tamanhos),
-            cores: isAdesivoPoster ? [] : (data.colors ? data.colors.map(color => ({ nome: color, codigo: '#000000' })) : produtoEstatico.cores)
+            tamanhos: isAdesivoPoster ? [] : (data.sizes || ['P', 'M', 'G', 'GG']),
+            cores: isAdesivoPoster ? [] : (data.colors ? data.colors.map(color => ({ nome: color, codigo: '#000000' })) : [{ nome: 'Padrão', codigo: '#000000' }]),
+            especificacoes: [
+              'Material de qualidade',
+              'Produto nacional',
+              'Garantia de satisfação'
+            ]
           });
+        } else {
+          console.error('Produto não encontrado');
         }
       } catch (error) {
         console.error('Erro ao buscar produto:', error);
-        // Usar dados estáticos como fallback
       } finally {
         setLoading(false);
       }
@@ -166,6 +146,20 @@ export default function ProdutoPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+      </div>
+    );
+  }
+
+  if (!produto) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Produto não encontrado</h2>
+          <p className="text-gray-600 mb-4">O produto que você está procurando não existe.</p>
+          <Link href="/produtos" className="text-green-600 hover:text-green-700 font-medium">
+            Voltar para produtos
+          </Link>
+        </div>
       </div>
     );
   }
@@ -505,22 +499,7 @@ function RelatedProducts({ currentProductId, category }: { currentProductId: str
                       {product.stock > 0 ? `${product.stock} em estoque` : 'Esgotado'}
                     </span>
                   </div>
-                  {product.colors && product.colors.length > 0 && (
-                    <div className="flex items-center mt-2 space-x-1">
-                      <span className="text-xs text-gray-500">Cores:</span>
-                      {product.colors.slice(0, 3).map((color, index) => (
-                        <div
-                          key={index}
-                          className="w-4 h-4 rounded-full border border-gray-200"
-                          style={{ backgroundColor: color.toLowerCase() }}
-                          title={color}
-                        ></div>
-                      ))}
-                      {product.colors.length > 3 && (
-                        <span className="text-xs text-gray-500">+{product.colors.length - 3}</span>
-                      )}
-                    </div>
-                  )}
+
                 </div>
               </Link>
             </motion.div>

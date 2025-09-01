@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { Package, Edit, Trash2, Plus, Search, Eye, EyeOff } from 'lucide-react'
 
 interface Product {
@@ -15,7 +16,7 @@ interface Product {
   active: boolean
   colors?: string[]
   sizes?: string[]
-  specifications?: Record<string, any>
+  specifications?: Record<string, string | number | boolean>
   createdAt: string
   updatedAt: string
 }
@@ -250,10 +251,12 @@ export default function ProductsPage() {
                     <div className="flex items-center">
                       <div className="h-12 w-12 rounded-lg bg-gray-200 flex items-center justify-center">
                         {product.image ? (
-                          <img 
+                          <Image 
                             src={product.image} 
                             alt={product.name}
                             className="h-12 w-12 rounded-lg object-cover"
+                            width={48}
+                            height={48}
                           />
                         ) : (
                           <Package className="h-6 w-6 text-gray-400" />

@@ -27,7 +27,7 @@ export default function SettingsPage() {
       // Simular salvamento (implementar API posteriormente)
       await new Promise(resolve => setTimeout(resolve, 1000))
       setMessage('Configurações salvas com sucesso!')
-    } catch (error) {
+    } catch {
       setMessage('Erro ao salvar configurações')
     } finally {
       setIsLoading(false)

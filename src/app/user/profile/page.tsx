@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { User, Mail, Phone, MapPin, Calendar, Save, ArrowLeft } from 'lucide-react'
+import { User, Mail, Save, ArrowLeft } from 'lucide-react'
+import Image from 'next/image'
 
 interface UserProfile {
   id: string
@@ -157,9 +158,11 @@ export default function ProfilePage() {
         <div className="flex items-center gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
             {profile?.image ? (
-              <img 
+              <Image 
                 src={profile.image} 
                 alt="Avatar" 
+                width={64}
+                height={64}
                 className="w-16 h-16 rounded-full object-cover"
               />
             ) : (
